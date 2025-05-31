@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Living Word Memphis</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="page-container">
+  <header>
+  <button id="topbar-toggle" class="topbar-toggle" aria-label="Toggle Info Bar">
+  <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar">
+  <div class="topbar-left">
+    <span><i class="fas fa-phone-alt"></i> (901) 555-1234</span>
+    <span><i class="fas fa-map-marker-alt"></i> 123 Kingdom Blvd, Memphis, TN</span>
+    <span><i class="fas fa-clock"></i> Sundays at 10:00 AM</span>
+  </div>
+  <div class="topbar-right">
+    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+    <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+    <a href="https://youtube.com/@LivingWordMinistriesTV" target="_blank"><i class="fab fa-youtube"></i></a>
+  </div>
+  </div>
+  <nav>
+    <div class="logo">Living Word Memphis</div>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Sermons</a></li>
+      <li><a href="#">Events</a></li>
+      <li><a href="#">Give</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="hero-video">
+    <video autoplay muted loop playsinline>
+      <source src="videos/church-banner.mp4" type="video/mp4">
+      Your browser does not support HTML5 video.
+    </video>
+    <div class="hero-overlay">
+      <h1>Welcome to Living Word Memphis</h1>
+      <p>Love God. Love People. Live in Dominion.</p>
+      <a href="https://www.youtube.com/@LivingWordMinistriesTV" target="_blank" class="cta-button watch-now">
+        <span class="live-dot"></span> Watch Now
+      </a>
+    </div>
+  </div>
+  </header>
+  <main>
+    <section class="tiles-masonry">
+      <div class="tile">
+        <img src="images/sermons.jpg" alt="Sermons">
+        <h2>Sermons</h2>
+      </div>
+      <div class="tile">
+        <img src="images/events.jpg" alt="Events">
+        <h2>Events</h2>
+      </div>
+      <div class="tile">
+        <img src="images/ministries.jpg" alt="Ministries">
+        <h2>Ministries</h2>
+      </div>
+      <div class="tile">
+        <img src="images/image00002.jpeg" alt="Sermons">
+        <h2>Giving</h2>
+      </div>
+      <div class="tile">
+        <img src="images/image00005.jpeg" alt="Events">
+        <h2>Visitors</h2>
+      </div>
+      <div class="tile">
+        <img src="images/image00008.jpeg" alt="Ministries">
+        <h2>Contact</h2>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Living Word Memphis. All rights reserved.</p>
+  </footer>
+
+  
+<script>
+  const topbar = document.querySelector('.topbar');
+  const toggleBtn = document.getElementById('topbar-toggle');
+
+  toggleBtn.addEventListener('click', () => {
+    topbar.classList.toggle('visible');
+  });
+
+  window.addEventListener('scroll', () => {
+    if (window.innerWidth > 600) {
+      topbar.classList.toggle('visible', window.scrollY > 30);
+    }
+  });
+</script>
+
+  </div>
+</body>
+</html>
