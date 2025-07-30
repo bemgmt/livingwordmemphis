@@ -16,7 +16,7 @@
   <div class="topbar">
   <div class="topbar-left">
     <span><i class="fas fa-phone-alt"></i> (901) 555-1234</span>
-    <span><i class="fas fa-map-marker-alt"></i> 123 Kingdom Blvd, Memphis, TN</span>
+    <span><i class="fas fa-map-marker-alt"></i> 6154 Macon Rd, Memphis, TN 38134</span>
     <span><i class="fas fa-clock"></i> Sundays at 10:00 AM</span>
   </div>
   <div class="topbar-right">
@@ -29,10 +29,10 @@
     <div class="logo">Living Word Memphis</div>
     <ul class="nav-links">
       <li><a href="#">Home</a></li>
-      <li><a href="#">About</a></li>
-      <li><a href="#">Sermons</a></li>
-      <li><a href="#">Events</a></li>
-      <li><a href="#">Give</a></li>
+      <li><a href="/about.html">About</a></li>
+      <li><a href="https://www.youtube.com/@LivingWordMemphis1/streams">Sermons</a></li>
+      <li><a href="/events.html">Events</a></li>
+      <li><a href="https://tithe.ly/give?c=6059493" target="_blank" rel="noopener">Giving</a></li>
       <li><a href="#">Contact</a></li>
     </ul>
   </nav>
@@ -52,39 +52,91 @@
   </div>
   </header>
   <main>
-    <section class="tiles-masonry">
-      <div class="tile">
-        <img src="images/sermons.jpg" alt="Sermons">
-        <h2>Sermons</h2>
-      </div>
-      <div class="tile">
-        <img src="images/events.jpg" alt="Events">
-        <h2>Events</h2>
-      </div>
-      <div class="tile">
-        <img src="images/ministries.jpg" alt="Ministries">
-        <h2>Ministries</h2>
-      </div>
-      <div class="tile">
-        <img src="images/image00002.jpeg" alt="Sermons">
-        <h2>Giving</h2>
-      </div>
-      <div class="tile">
-        <img src="images/image00005.jpeg" alt="Events">
-        <h2>Visitors</h2>
-      </div>
-      <div class="tile">
-        <img src="images/image00008.jpeg" alt="Ministries">
-        <h2>Contact</h2>
-      </div>
-    </section>
+    <div class="wm-expanding-panels">
+  <a href="/about.html" class="wm-panel" style="background-image: url('images/book1.jpeg');">
+    <div class="wm-panel-content"><h3>About</h3></div>
+  </a>
+  <a href="https://www.youtube.com/@LivingWordMemphis1/streams" class="wm-panel" style="background-image: url('images/book2.jpeg');">
+    <div class="wm-panel-content"><h3>Sermons</h3></div>
+  </a>
+  <a href="/events.html" class="wm-panel" style="background-image: url('images/AdobeStock_649448438.jpeg');">
+    <div class="wm-panel-content"><h3>Events</h3></div>
+  </a>
+  <a href="/visitors.html" class="wm-panel" style="background-image: url('images/AdobeStock_316745004_Preview.jpeg');">
+    <div class="wm-panel-content"><h3>Visitors</h3></div>
+  </a>
+  <a href="https://tithe.ly/give?c=6059493" target="_blank" rel="noopener" class="wm-panel" style="background-image: url('images/AdobeStock_557590452.jpeg');">
+    <div class="wm-panel-content"><h3>Giving</h3></div>
+  </a>
+    </div>
+  <div class="lwm-about-contact">
+    <div class="about-overlay"></div>
+    <div class="about-contact-wrapper">
+      <div class="about-text">
+    <h2 style="color: black;">About Living Word Memphis</h2>
+    <p>Living Word Memphis is a place of worship, community, and spiritual growth in the heart of Memphis, TN. We welcome all who seek to encounter God, grow in faith, and serve others with love.</p>
+    <p>Join us for our weekly services, events, and outreach programs. There's a place for you here.</p>
+  
+    <h3 style="color: black;">Service Times</h3>
+  <ul class="service-times">
+    <li><strong><span style="color: black;">Sunday Worship:</span></strong> <span style="color: black;">10:00 AM</span></li>
+    <li><strong><span style="color: black;">Wednesday Bible Study:</span></strong> <span style="color: black;">6:30 PM</span></li>
+    <li><strong><span style="color: black;">Prayer Meeting:</span></strong> <span style="color: black;">Saturdays at 9:00 AM</span></li>
+  </ul>
+
+    <h3 style="color: black;">Location</h3>
+      <p>6154 Macon Rd, Memphis, TN 38134</p>
+    <h3 style="color: black;">Contact Info</h3>
+  <ul class="contact-info">
+    <li><i class="fas fa-phone-alt" style="color: black;"></i><span style="color: black;"> (901) 555-1234 </span></li>
+    <li><i class="fas fa-envelope" style="color: black;"></i> <a href="mailto:info@livingwordmemphis.org" style="color: black;">info@livingwordmemphis.org</a></li>
+  </ul>
+    </div>
+    <div class="contact-form">
+      <h2>Contact Us</h2>
+      <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+      <!-- Netlify metadata -->
+      <input type="hidden" name="form-name" value="contact" />
+
+      <!-- honeypot to catch bots (optional but recommended) -->
+      <p class="hidden">
+        <label>Don’t fill this out if you’re human: <input name="bot-field" /></label>
+      </p>
+
+      <!-- your existing fields -->
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="5" required></textarea>
+
+      <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="map-container">
+    <iframe 
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3329.6132610126476!2d-90.00000000000001!3d35.149534!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0000000000000000%3A0x0000000000000000!2sLiving+Word+Memphis!5e0!3m2!1sen!2sus!4v0000000000000"
+      width="100%" 
+      height="400" 
+      style="border:0;" 
+      allowfullscreen="" 
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+  </div>
+  </div>
   </main>
 
   <footer>
     <p>&copy; 2025 Living Word Memphis. All rights reserved.</p>
   </footer>
 
-  
+
 <script>
   const topbar = document.querySelector('.topbar');
   const toggleBtn = document.getElementById('topbar-toggle');
@@ -99,6 +151,19 @@
     }
   });
 </script>
+
+<script>
+  const navbar = document.querySelector('nav');
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 30) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
+</script>
+
 
   </div>
 </body>
