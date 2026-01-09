@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us | Living Word Memphis</title>
+  <meta name="description" content="Get in touch with Living Word Memphis. Contact us via email, phone, or visit us at 6154 Macon Rd, Memphis, TN 38134.">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-KyZXEAg3QhqLMpG8r+8jhAXgqQpLPEKljC2cMZbOqYKc5Kql5zK8OY0K1U6EU5gR0mG1aFltREbZKL+VnMZK1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">Living Word Memphis</div>
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="https://www.youtube.com/@LivingWordMemphis1/streams">Sermons</a></li>
+        <li><a href="/events.html">Events</a></li>
+        <li><a href="https://tithe.ly/give?c=6059493" target="_blank" rel="noopener">Giving</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section id="revo-slider">
+      <div class="slider">
+        <div class="slide"><img src="images/AdobeStock_113562790.jpeg" alt="Living Word Memphis"></div>
+        <div class="slide"><img src="images/AdobeStock_432501052.jpeg" alt="Community gathering"></div>
+        <div class="slide"><img src="images/AdobeStock_600954263.jpeg" alt="Welcoming community"></div>
+      </div>
+      <div class="slider-overlay">
+        <p class="mission">Love God. Love People. Live in Dominion.</p>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="lwm-about-contact">
+      <div class="about-overlay"></div>
+      <div class="about-contact-wrapper">
+        <div class="about-text">
+          <h2 style="color: white;">Get In Touch</h2>
+          <p style="color: white;">We'd love to hear from you! Whether you have questions, prayer requests, or want to learn more about Living Word Memphis, we're here to help.</p>
+          
+          <h3 style="color: white; margin-top: 2rem;">Contact Information</h3>
+          <ul class="contact-info" style="list-style: none; padding-left: 0;">
+            <li style="margin-bottom: 1rem; color: white;">
+              <i class="fas fa-envelope" style="color: white; margin-right: 10px;"></i> 
+              <a href="mailto:info@livingwordmemphis.com" style="color: white; text-decoration: none;">info@livingwordmemphis.com</a>
+            </li>
+            <li style="margin-bottom: 1rem; color: white;">
+              <i class="fas fa-phone" style="color: white; margin-right: 10px;"></i> 
+              <a href="tel:8778928677" style="color: white; text-decoration: none;">877-892-8677</a>
+            </li>
+            <li style="margin-bottom: 1rem; color: white;">
+              <i class="fas fa-map-marker-alt" style="color: white; margin-right: 10px;"></i> 
+              6154 Macon Rd, Memphis, TN 38134
+            </li>
+          </ul>
+
+          <h3 style="color: white; margin-top: 2rem;">Service Times</h3>
+          <ul class="service-times" style="color: white;">
+            <li><strong>Sunday Worship:</strong> 10:00 AM</li>
+            <li><strong>Wednesday Bible Study:</strong> 6:30 PM</li>
+            <li><strong>Prayer Meeting:</strong> Saturdays at 9:00 AM</li>
+          </ul>
+
+          <h3 style="color: white; margin-top: 2rem;">Connect With Us</h3>
+          <div style="margin-top: 1rem;">
+            <a href="https://facebook.com" target="_blank" style="color: white; margin-right: 15px; font-size: 1.5rem;"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://instagram.com" target="_blank" style="color: white; margin-right: 15px; font-size: 1.5rem;"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.youtube.com/@LivingWordMemphis1" target="_blank" style="color: white; font-size: 1.5rem;"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        
+        <div class="contact-form">
+          <h2>Send Us a Message</h2>
+          <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+            <!-- Netlify metadata -->
+            <input type="hidden" name="form-name" value="contact" />
+
+            <!-- honeypot to catch bots -->
+            <p class="hidden">
+              <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+            </p>
+
+            <!-- form fields -->
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="phone">Phone (Optional)</label>
+            <input type="tel" id="phone" name="phone">
+
+            <label for="subject">Subject</label>
+            <select id="subject" name="subject" required>
+              <option value="">Select a subject...</option>
+              <option value="general">General Inquiry</option>
+              <option value="prayer">Prayer Request</option>
+              <option value="visit">Planning a Visit</option>
+              <option value="ministry">Ministry Information</option>
+              <option value="other">Other</option>
+            </select>
+
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+
+            <button type="submit">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map Section -->
+    <div class="map-container">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3260.8!2d-89.9!3d35.2!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s6154%20Macon%20Rd%2C%20Memphis%2C%20TN%2038134!5e0!3m2!1sen!2sus!4v1640000000000"
+        width="100%"
+        height="400"
+        style="border:0;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Living Word Memphis. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/slider.js"></script>
+  <script>
+    // Initialize slider
+    const slides = document.querySelectorAll('.slider .slide');
+    if (slides.length > 0) {
+      let current = 0;
+      slides.forEach((s, i) => i !== 0 && (s.style.display = 'none'));
+      setInterval(() => {
+        slides[current].style.display = 'none';
+        current = (current + 1) % slides.length;
+        slides[current].style.display = 'block';
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
