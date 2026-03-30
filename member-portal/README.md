@@ -44,4 +44,6 @@ Next.js 15 app aligned with `docs/portal/*` and `supabase/migrations/`.
 | `/member/giving` | Personal (non-official) giving note |
 | `/admin/dashboard` | Staff dashboard (requires `staff`, `executive`, or `apostle` in `user_roles`) |
 
-The static marketing site remains at the repo root (`index.html`, `giving.html`, etc.). Deploy this app as a separate Vercel project or monorepo app; point users from the public site to the portal URL.
+The static marketing site remains at the repo root (`index.html`, `giving.html`, etc.). Deploy this app as a **separate Vercel project** (import the same repo, set **Root Directory** to `member-portal`, add env vars, deploy). The marketing deployment does **not** serve `/auth/login`; that route exists only on this Next.js deployment.
+
+After the portal has a production URL (e.g. `https://your-portal-name.vercel.app`), set `MEMBER_PORTAL_ORIGIN_PRODUCTION` at the top of `../js/portal-nav.js` so **Member login** on the static site points at the correct origin.
