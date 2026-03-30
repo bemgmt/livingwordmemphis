@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarPlus, CreditCard, Heart, MessageSquare } from "lucide-react";
+import { CalendarPlus, CreditCard, Heart, UserRound } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
@@ -104,7 +104,7 @@ export default async function MemberDashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Profile snapshot
             </CardTitle>
-            <MessageSquare className="size-4 text-muted-foreground" aria-hidden />
+            <UserRound className="size-4 text-muted-foreground" aria-hidden />
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between gap-4">
@@ -138,14 +138,16 @@ export default async function MemberDashboard() {
           <CardContent className="flex flex-wrap gap-3">
             <Link
               href="/member/prayer"
-              className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
             >
+              <Heart className="size-4 shrink-0" aria-hidden />
               Submit a prayer request
             </Link>
             <Link
               href="/member/giving"
-              className="inline-flex items-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
+              className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
             >
+              <CreditCard className="size-4 shrink-0" aria-hidden />
               Personal giving note
             </Link>
           </CardContent>
