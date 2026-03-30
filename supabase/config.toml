@@ -1,0 +1,11 @@
+# Supabase CLI — run from repo root: `npx supabase db push` (after `supabase link`)
+# https://supabase.com/docs/guides/cli
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[studio]
+enabled = true
