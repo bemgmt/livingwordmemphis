@@ -7,6 +7,8 @@ import { useState } from "react";
 import { GOOGLE_CALENDAR_EMBED } from "@/components/marketing/constants";
 import { cn } from "@/lib/utils";
 
+const EVENT_THUMB_SRC = "/images/lwm-black.png";
+
 const events = [
   {
     title: "Community Prayer Night",
@@ -64,12 +66,12 @@ export function EventsTabs() {
               key={e.title}
               className="flex flex-col gap-4 overflow-hidden rounded-xl border border-border bg-card shadow-sm sm:flex-row"
             >
-              <div className="relative h-48 w-full shrink-0 sm:h-auto sm:w-48">
+              <div className="relative h-48 w-full shrink-0 bg-white sm:h-auto sm:w-48">
                 <Image
-                  src="/images/events.jpg"
-                  alt=""
+                  src={EVENT_THUMB_SRC}
+                  alt="Living Word Memphis"
                   fill
-                  className="object-cover"
+                  className="object-contain p-6"
                   sizes="(max-width: 640px) 100vw, 192px"
                 />
               </div>

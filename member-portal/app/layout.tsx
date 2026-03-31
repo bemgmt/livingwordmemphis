@@ -26,6 +26,12 @@ export const metadata: Metadata = {
   },
   description:
     "Living Word Memphis — Love God. Love People. Live in Dominion. Worship, community, and spiritual growth in Memphis, TN.",
+  themeColor: "#0a0a0a",
+  appleWebApp: {
+    capable: true,
+    title: "Living Word Memphis",
+    statusBarStyle: "default",
+  },
 };
 
 export default function RootLayout({
