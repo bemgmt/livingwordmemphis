@@ -2,11 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ChevronUp } from "lucide-react";
-import { useCallback, useState } from "react";
-
-import { cn } from "@/lib/utils";
 
 type Panel = {
   id: string;
@@ -96,81 +91,39 @@ function PanelMedia({
 }
 
 function MobileHomePanels() {
-  const router = useRouter();
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  const go = useCallback((p: Panel) => {
-    if (p.external) {
-      window.open(p.href, "_blank", "noopener,noreferrer");
-    } else {
-      router.push(p.href);
-    }
-  }, [router]);
-
-  const onPanelPointerUp = (p: Panel) => {
-    if (expandedId !== p.id) {
-      setExpandedId(p.id);
-      return;
-    }
-    go(p);
-  };
-
-  const visible = expandedId
-    ? panels.filter((p) => p.id === expandedId)
-    : panels;
+  const rowClass =
+    "group relative h-[min(26vh,210px)] w-full shrink-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
 
   return (
-    <div
-      className={cn(
-        "flex w-full flex-col md:hidden",
-        expandedId && "min-h-[min(70vh,520px)]",
-      )}
-    >
-      {visible.map((p) => {
-        const expanded = expandedId === p.id;
+    <div className="flex w-full flex-col md:hidden">
+      {panels.map((p) => {
+        const inner = (
+          <PanelMedia
+            image={p.image}
+            alt={p.alt}
+            title={p.title}
+            tagline={p.tagline}
+          />
+        );
+
+        if (p.external) {
+          return (
+            <a
+              key={p.id}
+              href={p.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={rowClass}
+            >
+              {inner}
+            </a>
+          );
+        }
+
         return (
-          <div
-            key={p.id}
-            role="button"
-            tabIndex={0}
-            aria-expanded={expanded}
-            aria-label={
-              expanded
-                ? `${p.title}. Tap again to open, or use collapse control to show all panels.`
-                : `${p.title}. Tap to expand preview.`
-            }
-            className={cn(
-              "group relative w-full shrink-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
-              expanded ? "min-h-0 flex-1" : "h-[min(26vh,210px)]",
-            )}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onPanelPointerUp(p);
-              }
-            }}
-            onClick={() => onPanelPointerUp(p)}
-          >
-            {expanded ? (
-              <button
-                type="button"
-                className="absolute right-3 top-3 z-20 rounded-full border border-white/20 bg-black/55 p-2.5 text-white shadow-lg backdrop-blur-md transition hover:bg-black/70"
-                aria-label="Collapse and show all panels"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setExpandedId(null);
-                }}
-              >
-                <ChevronUp className="size-5" aria-hidden />
-              </button>
-            ) : null}
-            <PanelMedia
-              image={p.image}
-              alt={p.alt}
-              title={p.title}
-              tagline={p.tagline}
-            />
-          </div>
+          <Link key={p.id} href={p.href} className={rowClass}>
+            {inner}
+          </Link>
         );
       })}
     </div>

@@ -7,25 +7,42 @@ import { YOUTUBE_CHANNEL } from "@/components/marketing/constants";
 import { cn } from "@/lib/utils";
 
 /**
- * Hero uses `/videos/church-banner.mp4` when present in `public/videos/`.
- * If the file is missing (common in shallow clones), a dark fallback is shown.
+ * Hero video: 16:9 landscape from `md` up (`/videos/lwm-hero-landscape.mp4`),
+ * 9:16 vertical below `md` (`/videos/lwm-hero-vertical.mp4`) in `public/videos/`.
+ * If a file fails to load, that breakpoint falls back to the dark gradient.
  */
 export function HeroVideo() {
-  const [videoOk, setVideoOk] = useState(true);
+  const [landscapeOk, setLandscapeOk] = useState(true);
+  const [verticalOk, setVerticalOk] = useState(true);
+  const videoBaseClass =
+    "absolute inset-0 h-full w-full object-cover motion-safe:scale-[1.01]";
 
   return (
     <div className="relative isolate flex min-h-[max(280px,min(88dvh,920px))] w-full flex-col overflow-hidden bg-zinc-950 sm:min-h-[max(320px,min(100dvh,920px))]">
-      {videoOk && (
+      {landscapeOk && (
         <video
-          className="absolute inset-0 h-full w-full object-cover motion-safe:scale-[1.01]"
+          className={cn(videoBaseClass, "hidden md:block")}
           autoPlay
           muted
           loop
           playsInline
-          onError={() => setVideoOk(false)}
+          onError={() => setLandscapeOk(false)}
           aria-hidden
         >
-          <source src="/videos/church-banner.mp4" type="video/mp4" />
+          <source src="/videos/lwm-hero-landscape.mp4" type="video/mp4" />
+        </video>
+      )}
+      {verticalOk && (
+        <video
+          className={cn(videoBaseClass, "md:hidden")}
+          autoPlay
+          muted
+          loop
+          playsInline
+          onError={() => setVerticalOk(false)}
+          aria-hidden
+        >
+          <source src="/videos/lwm-hero-vertical.mp4" type="video/mp4" />
         </video>
       )}
       {/* Cinematic gradient: readable type + depth (Tesla-style lower third) */}
@@ -33,7 +50,8 @@ export function HeroVideo() {
         className={cn(
           "pointer-events-none absolute inset-0 z-[1]",
           "bg-gradient-to-b from-black/50 via-black/25 to-black/85",
-          !videoOk && "from-zinc-900 via-zinc-950 to-black",
+          !verticalOk && "max-md:from-zinc-900 max-md:via-zinc-950 max-md:to-black",
+          !landscapeOk && "md:from-zinc-900 md:via-zinc-950 md:to-black",
         )}
         aria-hidden
       />
