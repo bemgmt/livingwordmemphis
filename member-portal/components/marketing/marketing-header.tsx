@@ -231,8 +231,10 @@ export function MarketingHeader() {
         {mobileOpen && (
           <div
             className={cn(
-              "border-t border-border bg-background/98 px-4 py-4 shadow-lg backdrop-blur-md lg:hidden",
-              isHome && "absolute left-0 right-0 top-full z-20",
+              "border-t px-4 py-4 shadow-lg backdrop-blur-xl lg:hidden",
+              isHome
+                ? "absolute left-0 right-0 top-full z-20 border-white/10 bg-zinc-950/85 text-white supports-[backdrop-filter]:bg-zinc-950/75"
+                : "border-border bg-background/98 text-foreground backdrop-blur-md",
             )}
           >
             <ul className="flex flex-col gap-0.5">
@@ -243,7 +245,12 @@ export function MarketingHeader() {
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary"
+                      className={cn(
+                        "block rounded-lg px-3 py-2.5 text-sm font-medium",
+                        isHome
+                          ? "text-white hover:bg-white/10"
+                          : "text-foreground hover:bg-secondary",
+                      )}
                     >
                       {label}
                     </a>
@@ -251,10 +258,14 @@ export function MarketingHeader() {
                     <Link
                       href={href}
                       className={cn(
-                        "block rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-secondary",
-                        pathname === href
-                          ? "bg-secondary text-primary"
-                          : "text-foreground",
+                        "block rounded-lg px-3 py-2.5 text-sm font-medium",
+                        isHome
+                          ? pathname === href
+                            ? "bg-white/15 text-brand-accent"
+                            : "text-white hover:bg-white/10"
+                          : pathname === href
+                            ? "bg-secondary text-primary"
+                            : "text-foreground hover:bg-secondary",
                       )}
                     >
                       {label}
@@ -265,7 +276,12 @@ export function MarketingHeader() {
               <li>
                 <Link
                   href="/auth/login"
-                  className="mt-2 block rounded-xl bg-primary px-3 py-3 text-center text-sm font-semibold text-primary-foreground"
+                  className={cn(
+                    "mt-2 block rounded-xl px-3 py-3 text-center text-sm font-semibold",
+                    isHome
+                      ? "border border-white/25 bg-white/10 text-white hover:bg-white/15"
+                      : "bg-primary text-primary-foreground",
+                  )}
                 >
                   Member login
                 </Link>

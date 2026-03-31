@@ -14,7 +14,7 @@ export function HeroVideo() {
   const [videoOk, setVideoOk] = useState(true);
 
   return (
-    <div className="relative isolate flex min-h-[max(320px,min(100dvh,920px))] w-full flex-col overflow-hidden bg-zinc-950">
+    <div className="relative isolate flex min-h-[max(280px,min(88dvh,920px))] w-full flex-col overflow-hidden bg-zinc-950 sm:min-h-[max(320px,min(100dvh,920px))]">
       {videoOk && (
         <video
           className="absolute inset-0 h-full w-full object-cover motion-safe:scale-[1.01]"

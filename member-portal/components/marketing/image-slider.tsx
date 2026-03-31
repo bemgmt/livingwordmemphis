@@ -12,11 +12,14 @@ export function ImageSlider({
   intervalMs = 4000,
   className,
   overlay,
+  visibility = "always",
 }: {
   slides: Slide[];
   intervalMs?: number;
   className?: string;
   overlay?: React.ReactNode;
+  /** `desktopOnly` hides the slider below the `lg` breakpoint (subpage spacing on mobile). */
+  visibility?: "always" | "desktopOnly";
 }) {
   const [index, setIndex] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -42,6 +45,7 @@ export function ImageSlider({
     <section
       className={cn(
         "relative min-h-[240px] w-full overflow-hidden bg-zinc-950 md:aspect-[21/9] md:min-h-[320px] lg:min-h-[380px]",
+        visibility === "desktopOnly" && "hidden lg:block",
         className,
       )}
     >

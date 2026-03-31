@@ -16,7 +16,7 @@ export function AboutTabs() {
 
   return (
     <section className="border-t border-border bg-muted/30 py-14 md:py-20">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <div
           className="flex flex-wrap gap-2 border-b border-border/80 pb-5"
           role="tablist"
