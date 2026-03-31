@@ -19,26 +19,43 @@ export function ImageSlider({
   overlay?: React.ReactNode;
 }) {
   const [index, setIndex] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
-    if (slides.length <= 1) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduceMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (slides.length <= 1 || reduceMotion) return;
     const t = setInterval(
       () => setIndex((i) => (i + 1) % slides.length),
       intervalMs,
     );
     return () => clearInterval(t);
-  }, [slides.length, intervalMs]);
+  }, [slides.length, intervalMs, reduceMotion]);
 
   return (
     <section
-      className={cn("relative aspect-[21/9] min-h-[220px] w-full overflow-hidden bg-black md:min-h-[320px]", className)}
+      className={cn(
+        "relative min-h-[240px] w-full overflow-hidden bg-zinc-950 md:aspect-[21/9] md:min-h-[320px] lg:min-h-[380px]",
+        className,
+      )}
     >
       {slides.map((slide, i) => (
         <div
           key={slide.src}
           className={cn(
-            "absolute inset-0 transition-opacity duration-700",
-            i === index ? "opacity-100" : "opacity-0",
+            "absolute inset-0",
+            reduceMotion
+              ? i === index
+                ? "opacity-100"
+                : "opacity-0"
+              : "transition-opacity duration-1000 ease-out",
+            !reduceMotion && (i === index ? "opacity-100" : "opacity-0"),
           )}
           aria-hidden={i !== index}
         >
@@ -52,9 +69,13 @@ export function ImageSlider({
           />
         </div>
       ))}
+      <div
+        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/80 via-black/30 to-black/40"
+        aria-hidden
+      />
       {overlay && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/35 px-4">
-          {overlay}
+        <div className="absolute inset-0 z-[2] flex items-end justify-center px-4 pb-10 md:items-center md:pb-0 md:pt-0">
+          <div className="max-w-4xl text-center">{overlay}</div>
         </div>
       )}
     </section>

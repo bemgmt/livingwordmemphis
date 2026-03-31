@@ -37,12 +37,21 @@ export function ContactForm({
     setPending(true);
     setState(null);
     const form = e.currentTarget;
-    const formData = new FormData(form);
+    const fd = new FormData(form);
+    const payload = {
+      company: String(fd.get("company") ?? ""),
+      name: String(fd.get("name") ?? ""),
+      email: String(fd.get("email") ?? ""),
+      phone: String(fd.get("phone") ?? ""),
+      subject: String(fd.get("subject") ?? ""),
+      message: String(fd.get("message") ?? ""),
+    };
 
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch("/api/inquiries", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
       const data = (await res.json()) as {
         ok: boolean;
@@ -65,13 +74,13 @@ export function ContactForm({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-      <h2 className="font-serif text-xl font-semibold text-foreground">
+    <div className="rounded-2xl border border-border bg-card p-7 shadow-sm sm:p-9">
+      <h2 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
         {heading}
       </h2>
       <form
         onSubmit={handleSubmit}
-        className="relative mt-6 flex flex-col gap-4"
+        className="relative mt-8 flex flex-col gap-5"
       >
         <div className="pointer-events-none absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0">
           <label htmlFor="contact-company">Company</label>

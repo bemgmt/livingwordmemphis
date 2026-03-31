@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
@@ -41,33 +45,34 @@ export function LoginForm() {
 
   return (
     <>
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-zinc-700">
-            Email
-          </label>
-          <input
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
           />
         </div>
-        <button
+        <Button
           type="submit"
+          className="w-full"
           disabled={status === "sending"}
-          className="w-full rounded-lg bg-zinc-900 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
         >
           {status === "sending" ? "Sending…" : "Send magic link"}
-        </button>
+        </Button>
       </form>
 
       {message && (
         <p
-          className={`mt-4 text-sm ${status === "error" ? "text-red-600" : "text-zinc-600"}`}
+          className={
+            status === "error"
+              ? "mt-4 text-sm text-destructive"
+              : "mt-4 text-sm text-muted-foreground"
+          }
         >
           {message}
         </p>

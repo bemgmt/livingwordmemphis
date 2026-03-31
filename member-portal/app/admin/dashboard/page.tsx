@@ -1,3 +1,10 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminDashboard() {
@@ -16,46 +23,59 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">Admin dashboard</h1>
-        <p className="mt-1 text-zinc-600">
+        <h1 className="font-serif text-3xl font-medium text-foreground">
+          Admin dashboard
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Operational snapshot. Expand with announcements queue, analytics, and
           giving summaries per roadmap.
         </p>
       </div>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-          Prayer requests
-        </h2>
-        <p className="mt-2 text-3xl font-semibold text-zinc-900">
-          {prayerCount ?? "—"}
-        </p>
-        <p className="text-xs text-zinc-500">Total rows visible to your role</p>
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            Prayer requests
+          </CardTitle>
+          <CardDescription>Total rows visible to your role</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-3xl font-semibold tabular-nums text-foreground">
+            {prayerCount ?? "—"}
+          </p>
+        </CardContent>
+      </Card>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-          Recent
-        </h2>
-        <ul className="mt-4 divide-y divide-zinc-100 text-sm">
-          {(recentPrayers ?? []).map((p) => (
-            <li key={p.id} className="flex flex-wrap justify-between gap-2 py-3">
-              <span className="text-zinc-500">
-                {p.created_at
-                  ? new Date(p.created_at).toLocaleString()
-                  : "—"}
-              </span>
-              <span className="font-medium text-zinc-800">
-                {p.title || "(no title)"}
-              </span>
-              <span className="text-zinc-500">{p.visibility}</span>
-            </li>
-          ))}
-          {!recentPrayers?.length && (
-            <li className="py-4 text-zinc-500">No requests yet.</li>
-          )}
-        </ul>
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            Recent
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <ul className="divide-y divide-border text-sm">
+            {(recentPrayers ?? []).map((p) => (
+              <li
+                key={p.id}
+                className="flex flex-wrap justify-between gap-2 py-3 first:pt-0"
+              >
+                <span className="text-muted-foreground">
+                  {p.created_at
+                    ? new Date(p.created_at).toLocaleString()
+                    : "—"}
+                </span>
+                <span className="font-medium text-foreground">
+                  {p.title || "(no title)"}
+                </span>
+                <span className="text-muted-foreground">{p.visibility}</span>
+              </li>
+            ))}
+            {!recentPrayers?.length && (
+              <li className="py-4 text-muted-foreground">No requests yet.</li>
+            )}
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   );
 }

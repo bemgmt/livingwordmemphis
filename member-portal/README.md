@@ -59,7 +59,11 @@ npm run test:e2e
 
 ## Windows production build note
 
-If `npm run build` fails with `EISDIR: illegal operation on a directory, readlink`, try building from a **directory path without spaces** (or use WSL / Vercel). This is a known Webpack + Windows edge case on some volumes.
+Keep the repo at a path **without spaces** (e.g. `LivingWordMemphis`) so `npm run build` is reliable on Windows.
+
+If you still see `EISDIR: illegal operation on a directory, readlink`, a folder name with spaces (such as `Living Word Memphis`) is a common trigger for Webpack + Windows. Alternatives: move or clone to a path without spaces, build from **WSL**, or use **Vercel** (Linux), where production builds succeed.
+
+**Routing note:** OAuth/email auth is implemented as `pages/auth/callback.tsx` (Pages `getServerSideProps`), and the contact form posts JSON to `pages/api/inquiries.ts`, avoiding App Router `route.ts` files that can hit the same readlink failure on affected Windows paths.
 
 ## Sanity CMS (optional)
 

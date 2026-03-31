@@ -22,51 +22,67 @@ export default function HomePage() {
       <HeroVideo />
       <HomePanels />
 
-      <section className="relative border-y border-border bg-muted/50 py-14 md:py-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
-        <div className="relative mx-auto grid max-w-6xl gap-12 px-4 lg:grid-cols-2 lg:gap-16">
-          <div className="space-y-6 text-foreground">
-            <h2 className="font-serif text-3xl font-semibold tracking-tight">
+      <section className="relative border-y border-border bg-muted/40 py-16 md:py-24">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-transparent" />
+        <div className="relative mx-auto grid max-w-6xl gap-14 px-4 sm:px-6 lg:grid-cols-2 lg:gap-20">
+          <div className="space-y-8 text-foreground">
+            <h2 className="font-serif text-3xl font-semibold tracking-tight md:text-4xl">
               About Living Word Memphis
             </h2>
-            <p className="text-muted-foreground">
-              Living Word Memphis is a place of worship, community, and
-              spiritual growth in the heart of Memphis, TN. We welcome all who
-              seek to encounter God, grow in faith, and serve others with love.
-            </p>
-            <p className="text-muted-foreground">
-              Join us for our weekly services, events, and outreach programs.
-              There&apos;s a place for you here.
-            </p>
-            <h3 className="font-serif text-xl font-semibold">Service times</h3>
-            <ul className="list-inside list-disc space-y-2 text-muted-foreground">
-              <li>
-                <strong className="text-foreground">Sunday worship:</strong>{" "}
-                10:00 AM
-              </li>
-              <li>
-                <strong className="text-foreground">Wednesday Bible study:</strong>{" "}
-                6:30 PM
-              </li>
-              <li>
-                <strong className="text-foreground">Prayer meeting:</strong>{" "}
-                Saturdays at 9:00 AM
-              </li>
-            </ul>
-            <h3 className="font-serif text-xl font-semibold">Location</h3>
-            <p className="text-muted-foreground">{CHURCH_ADDRESS}</p>
-            <h3 className="font-serif text-xl font-semibold">Contact</h3>
-            <p className="text-muted-foreground">
-              <a
-                className="text-primary underline-offset-4 hover:underline"
-                href={`mailto:${CHURCH_EMAIL}`}
-              >
-                {CHURCH_EMAIL}
-              </a>
-            </p>
+            <div className="space-y-5 text-base leading-relaxed text-muted-foreground">
+              <p>
+                Living Word Memphis is a place of worship, community, and
+                spiritual growth in the heart of Memphis, TN. We welcome all who
+                seek to encounter God, grow in faith, and serve others with love.
+              </p>
+              <p>
+                Join us for our weekly services, events, and outreach programs.
+                There&apos;s a place for you here.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-serif text-xl font-semibold tracking-tight">
+                Service times
+              </h3>
+              <dl className="mt-4 space-y-3 text-sm text-muted-foreground">
+                <div className="flex flex-col gap-0.5 border-b border-border/80 pb-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                  <dt className="font-medium text-foreground">Sunday worship</dt>
+                  <dd>10:00 AM</dd>
+                </div>
+                <div className="flex flex-col gap-0.5 border-b border-border/80 pb-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                  <dt className="font-medium text-foreground">
+                    Wednesday Bible study
+                  </dt>
+                  <dd>6:30 PM</dd>
+                </div>
+                <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                  <dt className="font-medium text-foreground">Prayer meeting</dt>
+                  <dd>Saturdays at 9:00 AM</dd>
+                </div>
+              </dl>
+            </div>
+            <div>
+              <h3 className="font-serif text-xl font-semibold tracking-tight">
+                Location
+              </h3>
+              <p className="mt-2 text-muted-foreground">{CHURCH_ADDRESS}</p>
+            </div>
+            <div>
+              <h3 className="font-serif text-xl font-semibold tracking-tight">
+                Contact
+              </h3>
+              <p className="mt-2 text-muted-foreground">
+                <a
+                  className="text-primary underline-offset-4 hover:underline"
+                  href={`mailto:${CHURCH_EMAIL}`}
+                >
+                  {CHURCH_EMAIL}
+                </a>
+              </p>
+            </div>
             <Link
               href="/about"
-              className="inline-flex text-sm font-medium text-primary hover:underline"
+              className="inline-flex text-sm font-semibold text-primary underline-offset-4 hover:underline"
             >
               Learn more about us →
             </Link>

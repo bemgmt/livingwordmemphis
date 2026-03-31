@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+
+import { ChurchLogo } from "@/components/church-logo";
 import { userHasStaffAccess } from "@/lib/auth/staff";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminLayout({
   children,
@@ -22,17 +25,26 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-100">
-      <header className="border-b border-zinc-200 bg-white">
+    <div className="min-h-screen bg-secondary">
+      <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4 px-4 py-4">
-          <span className="font-semibold text-zinc-900">Leadership portal</span>
-          <nav className="flex gap-4 text-sm text-zinc-600">
-            <a className="hover:text-zinc-900" href="/admin/dashboard">
+          <div className="flex flex-wrap items-center gap-4">
+            <ChurchLogo heightClass="h-9" href="/member/dashboard" />
+            <span className="font-medium text-foreground">Leadership portal</span>
+          </div>
+          <nav className="flex gap-4 text-sm text-muted-foreground">
+            <Link
+              className="transition-colors hover:text-foreground"
+              href="/admin/dashboard"
+            >
               Dashboard
-            </a>
-            <a className="hover:text-zinc-900" href="/member/dashboard">
+            </Link>
+            <Link
+              className="transition-colors hover:text-foreground"
+              href="/member/dashboard"
+            >
               Member view
-            </a>
+            </Link>
           </nav>
         </div>
       </header>

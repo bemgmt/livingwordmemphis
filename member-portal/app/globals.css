@@ -2,53 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Semantic tokens (HSL components for Tailwind); primary green-tinted ~ hue 145 */
-/* Brand accent: coral for CTAs on dark hero (legacy static site #f04e30) */
+/* Warm paper neutrals, charcoal text, ember accent; primary green used sparingly */
 :root {
-  --brand-accent: 11 89% 56%;
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 142 71% 35%;
-  --primary-foreground: 355 100% 97%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
+  --brand-accent: 16 90% 52%;
+  --background: 40 33% 98%;
+  --foreground: 220 20% 12%;
+  --card: 40 25% 99%;
+  --card-foreground: 220 20% 12%;
+  --popover: 40 25% 99%;
+  --popover-foreground: 220 20% 12%;
+  --primary: 142 65% 32%;
+  --primary-foreground: 144 100% 97%;
+  --secondary: 40 16% 94%;
+  --secondary-foreground: 220 18% 18%;
+  --muted: 40 12% 93%;
+  --muted-foreground: 220 10% 38%;
+  --accent: 40 18% 94%;
+  --accent-foreground: 220 20% 12%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 142 71% 35%;
-  --radius: 0.5rem;
+  --border: 40 14% 88%;
+  --input: 40 14% 88%;
+  --ring: 142 65% 32%;
+  --radius: 0.875rem;
 }
 
 .dark {
-  --brand-accent: 11 85% 58%;
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 142 65% 45%;
+  --brand-accent: 18 88% 54%;
+  --background: 220 18% 7%;
+  --foreground: 40 20% 96%;
+  --card: 220 16% 10%;
+  --card-foreground: 40 20% 96%;
+  --popover: 220 16% 10%;
+  --popover-foreground: 40 20% 96%;
+  --primary: 142 55% 48%;
   --primary-foreground: 144 100% 8%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
+  --secondary: 220 12% 16%;
+  --secondary-foreground: 40 20% 96%;
+  --muted: 220 12% 18%;
+  --muted-foreground: 220 8% 62%;
+  --accent: 220 12% 18%;
+  --accent-foreground: 40 20% 96%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 142 65% 45%;
+  --border: 220 12% 18%;
+  --input: 220 12% 18%;
+  --ring: 142 55% 48%;
 }
 
 @layer base {

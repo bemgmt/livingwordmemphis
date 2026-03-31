@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import { DM_Sans, Playfair_Display } from "next/font/google";
+import { Manrope, Newsreader } from "next/font/google";
 import { Toaster } from "sonner";
 
 import { getPublicSiteUrl } from "@/lib/site";
 
 import "./globals.css";
 
-const dmSans = DM_Sans({
+const manrope = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const playfair = Playfair_Display({
+const newsreader = Newsreader({
   variable: "--font-serif",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -34,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}
+        className={`${manrope.variable} ${newsreader.variable} font-sans antialiased`}
       >
         {children}
         <Toaster richColors position="top-center" />
