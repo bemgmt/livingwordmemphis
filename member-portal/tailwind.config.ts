@@ -43,6 +43,7 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        "brand-accent": "hsl(var(--brand-accent))",
       },
       borderRadius: {
         lg: "var(--radius)",

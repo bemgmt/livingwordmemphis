@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { DM_Sans, Playfair_Display } from "next/font/google";
 import { Toaster } from "sonner";
 
+import { getPublicSiteUrl } from "@/lib/site";
+
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -15,8 +17,13 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Living Word Memphis — Portal",
-  description: "Secure member and leadership portal for Living Word Memphis.",
+  metadataBase: new URL(getPublicSiteUrl()),
+  title: {
+    default: "Living Word Memphis",
+    template: "%s | Living Word Memphis",
+  },
+  description:
+    "Living Word Memphis — Love God. Love People. Live in Dominion. Worship, community, and spiritual growth in Memphis, TN.",
 };
 
 export default function RootLayout({

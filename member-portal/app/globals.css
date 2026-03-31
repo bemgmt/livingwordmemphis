@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 /* Semantic tokens (HSL components for Tailwind); primary green-tinted ~ hue 145 */
+/* Brand accent: coral for CTAs on dark hero (legacy static site #f04e30) */
 :root {
+  --brand-accent: 11 89% 56%;
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
   --card: 0 0% 100%;
@@ -27,6 +29,7 @@
 }
 
 .dark {
+  --brand-accent: 11 85% 58%;
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
   --card: 240 10% 3.9%;

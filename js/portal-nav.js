@@ -1,14 +1,16 @@
 /**
- * Sets href for .member-login-link → Next.js member portal /auth/login.
+ * Sets href for .member-login-link → Next.js app /auth/login.
  *
- * The marketing site (e.g. livingwordmemphis.vercel.app) is static HTML only.
- * Deploy member-portal/ as a separate Vercel project (Root Directory = member-portal),
- * then set MEMBER_PORTAL_ORIGIN_PRODUCTION below to that deployment’s origin (no trailing slash).
+ * Primary deploy: one Next.js app (Root Directory = member-portal) serves both
+ * marketing and portal on the same origin — use relative "/auth/login" in HTML
+ * or omit this script.
+ *
+ * Legacy: static HTML-only host (no Next.js). Deploy member-portal separately,
+ * then set MEMBER_PORTAL_ORIGIN_PRODUCTION to that deployment’s origin.
  *
  * @see member-portal/README.md
  */
 (function () {
-  // e.g. "https://your-member-portal.vercel.app" — must be the Next.js app, not the static site
   var MEMBER_PORTAL_ORIGIN_PRODUCTION = "";
 
   function portalOrigin() {
@@ -28,8 +30,7 @@
     if (!base) {
       console.warn(
         "[Living Word Memphis] Member login: set MEMBER_PORTAL_ORIGIN_PRODUCTION in js/portal-nav.js " +
-          "to your Next.js portal URL (Vercel project with Root Directory = member-portal). " +
-          "The main site origin does not serve /auth/login."
+          "when the public site is static-only, or use href=\"/auth/login\" when served from the Next app."
       );
       links.forEach(function (a) {
         a.setAttribute("href", "#");

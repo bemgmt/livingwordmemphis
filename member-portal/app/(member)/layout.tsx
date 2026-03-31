@@ -1,41 +1,13 @@
 import Link from "next/link";
-import {
-  CreditCard,
-  Heart,
-  LayoutDashboard,
-  UserRound,
-} from "lucide-react";
 
 import { ChurchLogo } from "@/components/church-logo";
+import { memberSidebarNav } from "@/lib/member-sidebar-nav";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 
 import { MemberSignOut } from "./sign-out-button";
 
 const publicSiteHref =
   process.env.NEXT_PUBLIC_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "/";
-
-export const sidebarNav = [
-  {
-    href: "/member/dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    href: "/member/profile",
-    label: "Profile",
-    icon: UserRound,
-  },
-  {
-    href: "/member/prayer",
-    label: "Prayer",
-    icon: Heart,
-  },
-  {
-    href: "/member/giving",
-    label: "Giving",
-    icon: CreditCard,
-  },
-] as const;
 
 export default async function MemberAreaLayout({
   children,
@@ -49,7 +21,7 @@ export default async function MemberAreaLayout({
       <aside className="hidden w-64 shrink-0 border-r border-border bg-card p-6 lg:flex lg:flex-col">
         <ChurchLogo heightClass="h-11" />
         <nav className="mt-8 flex flex-1 flex-col gap-1">
-          {sidebarNav.map(({ href, label, icon: Icon }) => (
+          {memberSidebarNav.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
@@ -78,7 +50,7 @@ export default async function MemberAreaLayout({
               Menu
             </p>
             <div className="flex flex-col gap-1">
-              {sidebarNav.map(({ href, label, icon: Icon }) => (
+              {memberSidebarNav.map(({ href, label, icon: Icon }) => (
                 <Link
                   key={href}
                   href={href}

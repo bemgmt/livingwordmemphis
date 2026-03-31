@@ -12,7 +12,7 @@ Single reference for **where each kind of data lives** and which system is autho
 | Prayer requests | **Supabase** `public.prayer_requests` | — | Visibility enums in [prayer-privacy.md](./prayer-privacy.md). |
 | Personal giving notes (non-official) | **Supabase** `public.personal_giving_notes` | Browser `localStorage` until user links account | **Not** tax/ledger data; Tithe.ly + church office are official. |
 | Official giving / tax statements | **Tithe.ly + church finance** | Optional **Supabase** summaries via future sync | No portal write path to official ledger in MVP. |
-| Public marketing pages | **Static site** / **Sanity** (when wired) | Vercel CDN | Keep one pipeline: either HTML repo or CMS. |
+| Public marketing pages | **Next.js** (`member-portal` marketing routes) / **Sanity** (when wired) | Vercel CDN | Single deploy with portal; optional CMS later. |
 | Sermon notes & teaching content | **Sanity** (recommended) | Next.js fetches published docs | Apostle workflow publishes here. |
 | Announcements (public) | **Sanity** *or* **Supabase** draft → publish | Public API / GROQ | Pick one bus; avoid two competing “published” truths. |
 | AI knowledge base (curated) | **Sanity** (versioned docs) + **vector store** (Phase 2) | — | Only **approved** exports enter embeddings; see governance in strategic plan §6. |
