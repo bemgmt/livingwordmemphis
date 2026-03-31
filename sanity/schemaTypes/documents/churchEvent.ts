@@ -1,5 +1,27 @@
 import { CalendarIcon } from "@sanity/icons";
+import type { PreviewValue } from "@sanity/types";
+import { createElement } from "react";
 import { defineField, defineType } from "sanity";
+
+/** List-preview thumbnail when the event has no image (served from studio `static/`). */
+const defaultEventListThumbnail = createElement("img", {
+  src: "/static/lwm-black.png",
+  alt: "",
+  style: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    objectPosition: "center",
+    backgroundColor: "#ffffff",
+  },
+});
+
+function previewMedia(
+  media: { asset?: unknown } | null | undefined,
+): PreviewValue["media"] {
+  if (media?.asset) return media as PreviewValue["media"];
+  return defaultEventListThumbnail;
+}
 
 export const churchEvent = defineType({
   name: "churchEvent",
@@ -98,7 +120,7 @@ export const churchEvent = defineType({
               timeStyle: "short",
             })
           : "",
-        media,
+        media: previewMedia(media),
       };
     },
   },
