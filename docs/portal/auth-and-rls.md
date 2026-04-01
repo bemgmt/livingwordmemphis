@@ -66,6 +66,7 @@ At runtime:
 
 ## Related documents
 
+- [sanity-and-cms.md](./sanity-and-cms.md)
 - [data-ownership.md](./data-ownership.md)
 - [prayer-privacy.md](./prayer-privacy.md)
 - [analytics-taxonomy.md](./analytics-taxonomy.md)

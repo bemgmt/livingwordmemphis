@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    externalDir: true,
+  },
+  transpilePackages: ["sanity"],
   async redirects() {
     return [
       { source: "/index.html", destination: "/", permanent: true },

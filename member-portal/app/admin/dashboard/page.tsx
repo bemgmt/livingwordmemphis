@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Card,
   CardContent,
@@ -5,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminDashboard() {
@@ -21,7 +24,7 @@ export default async function AdminDashboard() {
     .limit(8);
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto w-full max-w-4xl space-y-8 px-4 py-8">
       <div>
         <h1 className="font-serif text-3xl font-medium text-foreground">
           Admin dashboard
@@ -31,6 +34,23 @@ export default async function AdminDashboard() {
           giving summaries per roadmap.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            Content (Sanity CMS)
+          </CardTitle>
+          <CardDescription>
+            Edit sermons, events, announcements, and site settings. You will
+            sign in with your Sanity account when the studio opens.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="secondary">
+            <Link href="/admin/studio">Open content studio</Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
