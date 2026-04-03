@@ -2,6 +2,9 @@
   "name": "member-portal",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "clean:modules": "node ./scripts/clean-node-modules.cjs",
     "dev": "next dev --turbopack",
@@ -28,6 +31,7 @@
     "react-dom": "^19.0.0",
     "resend": "^6.10.0",
     "sanity": "^3.99.0",
+    "sharp": "^0.33.5",
     "sonner": "^1.7.1",
     "styled-components": "^6.1.19",
     "tailwind-merge": "^2.6.0",
