@@ -3,10 +3,10 @@ import {
   CalendarIcon,
   CogIcon,
   DocumentTextIcon,
+  UsersIcon,
 } from "@sanity/icons";
 import type { StructureResolver } from "sanity/structure";
 
-/** Types with custom list items above — hide from auto list at bottom. */
 const STRUCTURED_TYPES = new Set([
   "siteSettings",
   "sermonSeries",
@@ -14,6 +14,9 @@ const STRUCTURED_TYPES = new Set([
   "churchEvent",
   "announcement",
   "knowledgeArticle",
+  "sermonForumTopic",
+  "approvedBible",
+  "studyKnowledgeBase",
 ]);
 
 export const structure: StructureResolver = (S) =>
@@ -61,6 +64,25 @@ export const structure: StructureResolver = (S) =>
         .icon(BookIcon)
         .child(
           S.documentTypeList("knowledgeArticle").title("Articles"),
+        ),
+
+      S.divider(),
+
+      S.listItem()
+        .title("Member portal")
+        .icon(UsersIcon)
+        .child(
+          S.list()
+            .title("Member portal")
+            .items([
+              S.documentTypeListItem("sermonForumTopic").title(
+                "Forum discussion topics",
+              ),
+              S.documentTypeListItem("approvedBible").title("Approved Bibles"),
+              S.documentTypeListItem("studyKnowledgeBase").title(
+                "Study assistant knowledge",
+              ),
+            ]),
         ),
 
       S.divider(),

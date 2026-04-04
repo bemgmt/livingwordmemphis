@@ -1,13 +1,14 @@
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 
 import { ProfileClient } from "./profile-client";
+import { PasswordChange } from "./password-change";
 
 export default async function ProfilePage() {
   const { supabase, user } = await requireAuth();
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, preferred_bible_version, phone")
+    .select("display_name, preferred_bible_version, phone, bio, avatar_url")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -22,6 +23,7 @@ export default async function ProfilePage() {
         </p>
       </div>
       <ProfileClient profile={profile} />
+      <PasswordChange />
     </div>
   );
 }

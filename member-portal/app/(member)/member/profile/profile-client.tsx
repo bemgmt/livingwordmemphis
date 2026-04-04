@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -20,6 +21,8 @@ type ProfileRow = {
   display_name: string | null;
   preferred_bible_version: string | null;
   phone: string | null;
+  bio: string | null;
+  avatar_url: string | null;
 };
 
 export function ProfileClient({ profile }: { profile: ProfileRow | null }) {
@@ -80,6 +83,17 @@ export function ProfileClient({ profile }: { profile: ProfileRow | null }) {
               defaultValue={profile?.phone ?? ""}
               autoComplete="tel"
               maxLength={40}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea
+              id="bio"
+              name="bio"
+              defaultValue={profile?.bio ?? ""}
+              placeholder="A short introduction about yourself"
+              rows={3}
+              maxLength={500}
             />
           </div>
           <Button type="submit" disabled={isPending}>

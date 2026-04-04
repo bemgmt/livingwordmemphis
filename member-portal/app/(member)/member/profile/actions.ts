@@ -24,6 +24,7 @@ export async function updateProfile(
     formData.get("preferred_bible_version") ?? "",
   ).trim();
   const phone = String(formData.get("phone") ?? "").trim();
+  const bio = String(formData.get("bio") ?? "").trim();
 
   const { error } = await supabase
     .from("profiles")
@@ -31,6 +32,7 @@ export async function updateProfile(
       display_name: display_name || null,
       preferred_bible_version: preferred_bible_version || null,
       phone: phone || null,
+      bio: bio || null,
     })
     .eq("id", user.id);
 

@@ -7,19 +7,20 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 
-import { LoginForm } from "./login-form";
+import { ResetPasswordForm } from "./reset-password-form";
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   return (
     <main className="flex min-h-screen flex-col justify-center bg-background px-6 py-16 text-foreground">
       <div className="mx-auto w-full max-w-md">
         <Card>
           <CardHeader className="space-y-1">
             <h1 className="font-serif text-2xl font-semibold tracking-tight">
-              Sign in
+              Reset password
             </h1>
             <CardDescription>
-              Sign in with your email and password or use a magic link.
+              Enter your email and we&apos;ll send you a link to reset your
+              password.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -28,7 +29,7 @@ export default function LoginPage() {
                 <p className="text-sm text-muted-foreground">Loading…</p>
               }
             >
-              <LoginForm />
+              <ResetPasswordForm />
             </Suspense>
           </CardContent>
         </Card>
