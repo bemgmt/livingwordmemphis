@@ -8,7 +8,7 @@
   "scripts": {
     "clean:modules": "node ./scripts/clean-node-modules.cjs",
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "node ./scripts/check-windows-build-volume.cjs && next build",
     "start": "next start",
     "lint": "next lint",
     "test:e2e": "playwright test"

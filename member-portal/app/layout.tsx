@@ -20,6 +20,10 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getPublicSiteUrl()),
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
   title: {
     default: "Living Word Memphis",
     template: "%s | Living Word Memphis",
