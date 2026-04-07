@@ -14,11 +14,20 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { memberSidebarNav } from "@/lib/member-sidebar-nav";
+import { adminSidebarNav } from "@/lib/admin-sidebar-nav";
 
 type NavItem = {
   readonly href: string;
   readonly label: string;
   readonly icon: LucideIcon;
+};
+
+type NavVariant = "member" | "admin";
+
+const navItems: Record<NavVariant, readonly NavItem[]> = {
+  member: memberSidebarNav,
+  admin: adminSidebarNav,
 };
 
 function NavLink({
@@ -51,13 +60,14 @@ function NavLink({
 }
 
 export function SidebarNav({
-  items,
+  variant,
   footer,
 }: {
-  items: readonly NavItem[];
+  variant: NavVariant;
   footer?: React.ReactNode;
 }) {
   const pathname = usePathname() ?? "";
+  const items = navItems[variant];
 
   return (
     <nav className="flex flex-1 flex-col gap-1">
@@ -72,16 +82,17 @@ export function SidebarNav({
 }
 
 export function MobileNav({
-  items,
+  variant,
   title,
   footer,
 }: {
-  items: readonly NavItem[];
+  variant: NavVariant;
   title: string;
   footer?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname() ?? "";
+  const items = navItems[variant];
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

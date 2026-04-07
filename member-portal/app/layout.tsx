@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Newsreader } from "next/font/google";
 import { Toaster } from "sonner";
 
@@ -30,12 +30,15 @@ export const metadata: Metadata = {
   },
   description:
     "Living Word Memphis — Love God. Love People. Live in Dominion. Worship, community, and spiritual growth in Memphis, TN.",
-  themeColor: "#0a0a0a",
   appleWebApp: {
     capable: true,
     title: "Living Word Memphis",
     statusBarStyle: "default",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({

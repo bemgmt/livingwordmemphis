@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 
 import { ChurchLogo } from "@/components/church-logo";
 import { MobileNav, SidebarNav } from "@/components/sidebar-nav";
-import { adminSidebarNav } from "@/lib/admin-sidebar-nav";
 import { userHasStaffAccess } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -45,14 +44,14 @@ export default async function AdminLayout({
           </span>
         </div>
         <div className="mt-8 flex flex-1 flex-col">
-          <SidebarNav items={adminSidebarNav} footer={footer} />
+          <SidebarNav variant="admin" footer={footer} />
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="p-4 lg:hidden">
           <MobileNav
-            items={adminSidebarNav}
+            variant="admin"
             title="Leadership"
             footer={footer}
           />
