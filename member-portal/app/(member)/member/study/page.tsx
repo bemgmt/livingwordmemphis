@@ -23,7 +23,7 @@ export default async function MemberStudyPage() {
           AI-assisted study.
         </p>
       </div>
-      <StudyAssistant sessions={sessions ?? []} userId={user.id} />
+      <StudyAssistant sessions={sessions ?? []} />
     </div>
   );
 }

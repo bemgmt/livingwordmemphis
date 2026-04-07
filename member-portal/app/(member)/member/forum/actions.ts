@@ -11,8 +11,8 @@ export async function createForumTopic(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  const title = String(formData.get("title") ?? "").trim();
-  const body = String(formData.get("body") ?? "").trim();
+  const title = String(formData.get("title") ?? "").trim().slice(0, 300);
+  const body = String(formData.get("body") ?? "").trim().slice(0, 10000);
 
   if (!title || !body)
     return { ok: false as const, error: "Title and body are required." };
@@ -35,13 +35,14 @@ export async function createForumReply(topicId: string, body: string) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  if (!body.trim())
+  const trimmed = body.trim().slice(0, 5000);
+  if (!trimmed)
     return { ok: false as const, error: "Reply cannot be empty." };
 
   const { error } = await supabase.from("forum_replies").insert({
     topic_id: topicId,
     author_id: user.id,
-    body: body.trim(),
+    body: trimmed,
   });
 
   if (error) return { ok: false as const, error: error.message };

@@ -4,7 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function savePersonalGivingNote(formData: FormData) {
+export type GivingResult = { ok: true } | { ok: false; error: string };
+
+export async function savePersonalGivingNote(
+  _prev: GivingResult | undefined,
+  formData: FormData,
+): Promise<GivingResult> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -14,10 +19,12 @@ export async function savePersonalGivingNote(formData: FormData) {
 
   const amount = Number(formData.get("amount"));
   const category = String(formData.get("category") ?? "").trim();
-  const categoryDetail = String(formData.get("category_detail") ?? "").trim();
+  const categoryDetail = String(formData.get("category_detail") ?? "")
+    .trim()
+    .slice(0, 120);
 
   if (!Number.isFinite(amount) || amount <= 0 || !category) {
-    redirect("/member/giving?error=invalid");
+    return { ok: false, error: "Please enter a valid amount and category." };
   }
 
   const detail =
@@ -31,10 +38,11 @@ export async function savePersonalGivingNote(formData: FormData) {
   });
 
   if (error) {
-    console.error(error);
-    redirect("/member/giving?error=save");
+    console.error("savePersonalGivingNote:", error);
+    return { ok: false, error: "Could not save your giving note." };
   }
 
   revalidatePath("/member/giving");
-  redirect("/member/dashboard?giving=saved");
+  revalidatePath("/member/dashboard");
+  return { ok: true };
 }

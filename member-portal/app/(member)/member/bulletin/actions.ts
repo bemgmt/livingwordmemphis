@@ -11,8 +11,8 @@ export async function createBulletinPost(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  const title = String(formData.get("title") ?? "").trim();
-  const body = String(formData.get("body") ?? "").trim();
+  const title = String(formData.get("title") ?? "").trim().slice(0, 300);
+  const body = String(formData.get("body") ?? "").trim().slice(0, 5000);
 
   if (!title || !body)
     return { ok: false as const, error: "Title and body are required." };
@@ -35,13 +35,14 @@ export async function createBulletinComment(postId: string, body: string) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  if (!body.trim())
+  const trimmed = body.trim().slice(0, 2000);
+  if (!trimmed)
     return { ok: false as const, error: "Comment cannot be empty." };
 
   const { error } = await supabase.from("bulletin_comments").insert({
     post_id: postId,
     author_id: user.id,
-    body: body.trim(),
+    body: trimmed,
   });
 
   if (error) return { ok: false as const, error: error.message };
@@ -51,11 +52,22 @@ export async function createBulletinComment(postId: string, body: string) {
 
 export async function deleteBulletinPost(postId: string) {
   const supabase = await createClient();
-  const { error } = await supabase
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data, error } = await supabase
     .from("bulletin_posts")
     .delete()
-    .eq("id", postId);
+    .eq("id", postId)
+    .eq("author_id", user.id)
+    .select("id");
+
   if (error) return { ok: false as const, error: error.message };
+  if (!data?.length)
+    return { ok: false as const, error: "Post not found or not yours." };
+
   revalidatePath("/member/bulletin");
   return { ok: true as const };
 }

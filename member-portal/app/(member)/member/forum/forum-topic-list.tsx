@@ -31,10 +31,9 @@ type Topic = {
 type Props = {
   topics: Topic[];
   profileMap: Record<string, string>;
-  currentUserId: string;
 };
 
-export function ForumTopicList({ topics, profileMap, currentUserId }: Props) {
+export function ForumTopicList({ topics, profileMap }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [isPending, startTransition] = useTransition();
 

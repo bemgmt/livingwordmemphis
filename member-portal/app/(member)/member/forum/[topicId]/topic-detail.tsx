@@ -36,14 +36,12 @@ type Props = {
   topic: Topic;
   replies: Reply[];
   profileMap: Record<string, string>;
-  currentUserId: string;
 };
 
 export function TopicDetail({
   topic,
   replies,
   profileMap,
-  currentUserId,
 }: Props) {
   const [replyText, setReplyText] = useState("");
   const [isPending, startTransition] = useTransition();

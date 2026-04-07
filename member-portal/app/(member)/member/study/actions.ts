@@ -24,6 +24,21 @@ export async function createStudySession(title: string) {
 
 export async function loadSessionMessages(sessionId: string) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: session } = await supabase
+    .from("study_sessions")
+    .select("id")
+    .eq("id", sessionId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!session)
+    return { ok: false as const, error: "Session not found." };
+
   const { data, error } = await supabase
     .from("study_messages")
     .select("id, role, content, created_at")
@@ -36,11 +51,22 @@ export async function loadSessionMessages(sessionId: string) {
 
 export async function deleteStudySession(sessionId: string) {
   const supabase = await createClient();
-  const { error } = await supabase
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data, error } = await supabase
     .from("study_sessions")
     .delete()
-    .eq("id", sessionId);
+    .eq("id", sessionId)
+    .eq("user_id", user.id)
+    .select("id");
+
   if (error) return { ok: false as const, error: error.message };
+  if (!data?.length)
+    return { ok: false as const, error: "Session not found or not yours." };
+
   revalidatePath("/member/study");
   return { ok: true as const };
 }

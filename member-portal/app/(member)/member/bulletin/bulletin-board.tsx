@@ -14,7 +14,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import { ConfirmDelete } from "@/components/confirm-delete";
+
 import { createBulletinComment, createBulletinPost, deleteBulletinPost } from "./actions";
+
+type Comment = {
+  id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+};
 
 type Post = {
   id: string;
@@ -28,11 +37,17 @@ type Post = {
 
 type Props = {
   posts: Post[];
+  commentsByPost: Record<string, Comment[]>;
   profileMap: Record<string, string>;
   currentUserId: string;
 };
 
-export function BulletinBoard({ posts, profileMap, currentUserId }: Props) {
+export function BulletinBoard({
+  posts,
+  commentsByPost,
+  profileMap,
+  currentUserId,
+}: Props) {
   const [showForm, setShowForm] = useState(false);
   const [commentText, setCommentText] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
@@ -92,7 +107,7 @@ export function BulletinBoard({ posts, profileMap, currentUserId }: Props) {
                 <Textarea id="body" name="body" required rows={4} />
               </div>
               <Button type="submit" disabled={isPending}>
-                {isPending ? "Posting…" : "Post"}
+                {isPending ? "Posting..." : "Post"}
               </Button>
             </form>
           </CardContent>
@@ -100,79 +115,98 @@ export function BulletinBoard({ posts, profileMap, currentUserId }: Props) {
       )}
 
       <div className="space-y-4">
-        {posts.map((post) => (
-          <Card
-            key={post.id}
-            className={
-              post.is_announcement
-                ? "border-primary/30 bg-primary/5"
-                : undefined
-            }
-          >
-            <CardHeader className="pb-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-base font-medium">
-                    {post.title}
-                  </CardTitle>
-                  {post.is_announcement && (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                      Announcement
-                    </span>
-                  )}
-                  {post.is_pinned && (
-                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
-                      Pinned
-                    </span>
-                  )}
+        {posts.map((post) => {
+          const comments = commentsByPost[post.id] ?? [];
+
+          return (
+            <Card
+              key={post.id}
+              className={
+                post.is_announcement
+                  ? "border-primary/30 bg-primary/5"
+                  : undefined
+              }
+            >
+              <CardHeader className="pb-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base font-medium">
+                      {post.title}
+                    </CardTitle>
+                    {post.is_announcement && (
+                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                        Announcement
+                      </span>
+                    )}
+                    {post.is_pinned && (
+                      <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+                        Pinned
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {profileMap[post.author_id] ?? "Member"} &middot;{" "}
+                    {new Date(post.created_at).toLocaleDateString()}
+                  </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {profileMap[post.author_id] ?? "Member"} &middot;{" "}
-                  {new Date(post.created_at).toLocaleDateString()}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="whitespace-pre-wrap text-sm text-foreground">
-                {post.body}
-              </p>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Add a comment…"
-                  value={commentText[post.id] ?? ""}
-                  onChange={(e) =>
-                    setCommentText((prev) => ({
-                      ...prev,
-                      [post.id]: e.target.value,
-                    }))
-                  }
-                  className="text-sm"
-                />
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={isPending || !(commentText[post.id] ?? "").trim()}
-                  onClick={() => handleComment(post.id)}
-                >
-                  Reply
-                </Button>
-              </div>
-              {post.author_id === currentUserId && (
-                <div className="flex justify-end">
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="whitespace-pre-wrap text-sm text-foreground">
+                  {post.body}
+                </p>
+
+                {comments.length > 0 && (
+                  <div className="space-y-2 rounded-lg bg-secondary/50 p-3">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Comments ({comments.length})
+                    </p>
+                    {comments.map((c) => (
+                      <div key={c.id} className="text-sm">
+                        <p className="text-foreground">{c.body}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {profileMap[c.author_id] ?? "Member"} &middot;{" "}
+                          {new Date(c.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder="Add a comment..."
+                    value={commentText[post.id] ?? ""}
+                    onChange={(e) =>
+                      setCommentText((prev) => ({
+                        ...prev,
+                        [post.id]: e.target.value,
+                      }))
+                    }
+                    className="text-sm"
+                  />
                   <Button
-                    variant="ghost"
                     size="sm"
-                    className="text-destructive hover:text-destructive"
-                    disabled={isPending}
-                    onClick={() => handleDelete(post.id)}
+                    variant="outline"
+                    disabled={isPending || !(commentText[post.id] ?? "").trim()}
+                    onClick={() => handleComment(post.id)}
                   >
-                    Delete
+                    Reply
                   </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                {post.author_id === currentUserId && (
+                  <div className="flex justify-end">
+                    <ConfirmDelete
+                      onConfirm={() => handleDelete(post.id)}
+                      disabled={isPending}
+                      title="Delete this post?"
+                      description="This will permanently remove the post and all its comments."
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
         {posts.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">
             No posts yet. Be the first to share!

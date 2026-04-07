@@ -10,7 +10,12 @@ const VISIBILITY = new Set([
   "public_praise_ok",
 ]);
 
-export async function submitPrayerRequest(formData: FormData) {
+export type PrayerResult = { ok: true } | { ok: false; error: string };
+
+export async function submitPrayerRequest(
+  _prev: PrayerResult | undefined,
+  formData: FormData,
+): Promise<PrayerResult> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -20,17 +25,17 @@ export async function submitPrayerRequest(formData: FormData) {
     redirect("/auth/login");
   }
 
-  const body = String(formData.get("body") ?? "").trim();
-  const titleRaw = String(formData.get("title") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim().slice(0, 5000);
+  const titleRaw = String(formData.get("title") ?? "").trim().slice(0, 200);
   const visibility = String(formData.get("visibility") ?? "");
   const isAnonymous = formData.get("is_anonymous_to_team") === "on";
 
   if (!body) {
-    redirect("/member/prayer?error=body");
+    return { ok: false, error: "Please describe your prayer need." };
   }
 
   if (!VISIBILITY.has(visibility)) {
-    redirect("/member/prayer?error=visibility");
+    return { ok: false, error: "Please select a visibility option." };
   }
 
   const { error } = await supabase.from("prayer_requests").insert({
@@ -42,10 +47,11 @@ export async function submitPrayerRequest(formData: FormData) {
   });
 
   if (error) {
-    console.error(error);
-    redirect("/member/prayer?error=save");
+    console.error("submitPrayerRequest:", error);
+    return { ok: false, error: "Could not save your prayer request." };
   }
 
   revalidatePath("/member/dashboard");
-  redirect("/member/dashboard?prayer=submitted");
+  revalidatePath("/member/prayer");
+  return { ok: true };
 }

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
+import { buildProfileMap } from "@/lib/build-profile-map";
 
 import { TopicDetail } from "./topic-detail";
 
@@ -9,7 +10,7 @@ export default async function ForumTopicPage({
   params: Promise<{ topicId: string }>;
 }) {
   const { topicId } = await params;
-  const { supabase, user } = await requireAuth();
+  const { supabase } = await requireAuth();
 
   const { data: topic } = await supabase
     .from("forum_topics")
@@ -29,22 +30,13 @@ export default async function ForumTopicPage({
     topic.author_id,
     ...(replies ?? []).map((r) => r.author_id),
   ];
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, display_name")
-    .in("id", [...new Set(userIds)]);
-
-  const profileMap: Record<string, string> = {};
-  (profiles ?? []).forEach((p) => {
-    profileMap[p.id] = p.display_name ?? "Member";
-  });
+  const profileMap = await buildProfileMap(supabase, userIds);
 
   return (
     <TopicDetail
       topic={topic}
       replies={replies ?? []}
       profileMap={profileMap}
-      currentUserId={user.id}
     />
   );
 }

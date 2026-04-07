@@ -1,47 +1,40 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { CalendarPlus, CreditCard, Heart, UserRound } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/supabase/auth-helpers";
 
 export default async function MemberDashboard() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireAuth();
 
-  if (!user) {
-    redirect("/auth/login?next=/member/dashboard");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name, preferred_bible_version")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const { data: roles } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", user.id);
-
-  const { count: prayerCount } = await supabase
-    .from("prayer_requests")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id);
-
-  const { count: givingCount } = await supabase
-    .from("personal_giving_notes")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id);
-
-  const { data: recentPrayers } = await supabase
-    .from("prayer_requests")
-    .select("id, title, created_at")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(5);
+  const [
+    { data: profile },
+    { data: roles },
+    { count: prayerCount },
+    { count: givingCount },
+    { data: recentPrayers },
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("display_name, preferred_bible_version")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase.from("user_roles").select("role").eq("user_id", user.id),
+    supabase
+      .from("prayer_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id),
+    supabase
+      .from("personal_giving_notes")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id),
+    supabase
+      .from("prayer_requests")
+      .select("id, title, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
 
   const roleLabels = roles?.map((r) => r.role).join(", ") || "member";
 

@@ -27,9 +27,9 @@ export function UpdatePasswordForm() {
       return;
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       setStatus("error");
-      setMessage("Password must be at least 6 characters.");
+      setMessage("Password must be at least 8 characters.");
       return;
     }
 
@@ -61,7 +61,7 @@ export function UpdatePasswordForm() {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="new-password"
-            minLength={6}
+            minLength={8}
           />
         </div>
         <div className="space-y-2">
@@ -73,7 +73,7 @@ export function UpdatePasswordForm() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             autoComplete="new-password"
-            minLength={6}
+            minLength={8}
           />
         </div>
         <Button

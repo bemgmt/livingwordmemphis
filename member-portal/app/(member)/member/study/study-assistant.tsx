@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ConfirmDelete } from "@/components/confirm-delete";
 
 import {
   createStudySession,
@@ -23,10 +24,8 @@ type Message = { role: "user" | "assistant"; content: string };
 
 export function StudyAssistant({
   sessions,
-  userId,
 }: {
   sessions: Session[];
-  userId: string;
 }) {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -173,13 +172,19 @@ export function StudyAssistant({
                     {new Date(s.updated_at).toLocaleDateString()}
                   </span>
                 </button>
-                <button
-                  onClick={() => handleDeleteSession(s.id)}
-                  className="px-1 text-muted-foreground hover:text-destructive"
+                <ConfirmDelete
+                  onConfirm={() => handleDeleteSession(s.id)}
                   disabled={isPending}
+                  title="Delete this study session?"
+                  description="All messages in this session will be permanently removed."
                 >
-                  &times;
-                </button>
+                  <button
+                    className="px-1 text-muted-foreground hover:text-destructive"
+                    disabled={isPending}
+                  >
+                    &times;
+                  </button>
+                </ConfirmDelete>
               </div>
             ))}
             {sessions.length === 0 && (
