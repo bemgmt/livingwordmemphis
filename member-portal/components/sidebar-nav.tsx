@@ -57,7 +57,7 @@ export function SidebarNav({
   items: readonly NavItem[];
   footer?: React.ReactNode;
 }) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
 
   return (
     <nav className="flex flex-1 flex-col gap-1">
@@ -81,7 +81,7 @@ export function MobileNav({
   footer?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

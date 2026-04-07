@@ -29,7 +29,8 @@ export function Pagination({
       params.set("page", String(p));
     }
     const qs = params.toString();
-    return qs ? `${pathname}?${qs}` : pathname;
+    const base = pathname ?? "/";
+    return qs ? `${base}?${qs}` : base;
   }
 
   return (
