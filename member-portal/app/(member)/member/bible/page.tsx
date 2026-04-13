@@ -5,9 +5,9 @@ import { BibleReader } from "./bible-reader";
 export default async function MemberBiblePage() {
   const { supabase } = await requireAuth();
 
-  const { data: bibles } = await supabase
-    .from("approved_bibles")
-    .select("id, name, abbreviation, api_bible_id")
+  const { data: translations } = await supabase
+    .from("bible_translations")
+    .select("id, name, abbreviation, module, has_strongs")
     .eq("is_active", true)
     .order("name");
 
@@ -18,10 +18,10 @@ export default async function MemberBiblePage() {
           Bible
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Read and study approved Bible translations.
+          Read, study, and interact with Scripture.
         </p>
       </div>
-      <BibleReader approvedBibles={bibles ?? []} />
+      <BibleReader translations={translations ?? []} />
     </div>
   );
 }

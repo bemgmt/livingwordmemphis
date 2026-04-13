@@ -1,0 +1,9 @@
+# Bible JSON source data (already seeded into Supabase)
+bibles/
+
+# Design source files
+*.ai
+
+# OS files
+.DS_Store
+Thumbs.db

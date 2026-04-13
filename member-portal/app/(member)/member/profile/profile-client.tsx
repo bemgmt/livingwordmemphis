@@ -25,7 +25,15 @@ type ProfileRow = {
   avatar_url: string | null;
 };
 
-export function ProfileClient({ profile }: { profile: ProfileRow | null }) {
+type BibleTranslation = { abbreviation: string; name: string };
+
+export function ProfileClient({
+  profile,
+  bibleTranslations = [],
+}: {
+  profile: ProfileRow | null;
+  bibleTranslations?: BibleTranslation[];
+}) {
   const [state, formAction, isPending] = useActionState<
     UpdateProfileResult | undefined,
     FormData
@@ -66,13 +74,29 @@ export function ProfileClient({ profile }: { profile: ProfileRow | null }) {
             <Label htmlFor="preferred_bible_version">
               Preferred Bible version
             </Label>
-            <Input
-              id="preferred_bible_version"
-              name="preferred_bible_version"
-              defaultValue={profile?.preferred_bible_version ?? ""}
-              placeholder="e.g. CSB, NIV"
-              maxLength={80}
-            />
+            {bibleTranslations.length > 0 ? (
+              <select
+                id="preferred_bible_version"
+                name="preferred_bible_version"
+                defaultValue={profile?.preferred_bible_version ?? ""}
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <option value="">— no preference —</option>
+                {bibleTranslations.map((t) => (
+                  <option key={t.abbreviation} value={t.abbreviation}>
+                    {t.abbreviation} — {t.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <Input
+                id="preferred_bible_version"
+                name="preferred_bible_version"
+                defaultValue={profile?.preferred_bible_version ?? ""}
+                placeholder="e.g. KJV, ASV"
+                maxLength={80}
+              />
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>

@@ -6,11 +6,18 @@ import { PasswordChange } from "./password-change";
 export default async function ProfilePage() {
   const { supabase, user } = await requireAuth();
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name, preferred_bible_version, phone, bio, avatar_url")
-    .eq("id", user.id)
-    .maybeSingle();
+  const [{ data: profile }, { data: translations }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("display_name, preferred_bible_version, phone, bio, avatar_url")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("bible_translations")
+      .select("abbreviation, name")
+      .eq("is_active", true)
+      .order("name"),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -22,7 +29,10 @@ export default async function ProfilePage() {
           Manage how we know you in the portal.
         </p>
       </div>
-      <ProfileClient profile={profile} />
+      <ProfileClient
+        profile={profile}
+        bibleTranslations={translations ?? []}
+      />
       <PasswordChange />
     </div>
   );

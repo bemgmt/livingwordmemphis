@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { CalendarPlus, CreditCard, Heart, UserRound } from "lucide-react";
+import {
+  BookOpen,
+  CalendarPlus,
+  CreditCard,
+  Heart,
+  UserRound,
+} from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
@@ -13,6 +19,7 @@ export default async function MemberDashboard() {
     { count: prayerCount },
     { count: givingCount },
     { data: recentPrayers },
+    { data: readingPositions },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -34,6 +41,14 @@ export default async function MemberDashboard() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase
+      .from("user_reading_positions")
+      .select(
+        "chapter, updated_at, book:bible_books!inner(name), translation:bible_translations!inner(abbreviation)",
+      )
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1),
   ]);
 
   const roleLabels = roles?.map((r) => r.role).join(", ") || "member";
@@ -143,8 +158,58 @@ export default async function MemberDashboard() {
               <CreditCard className="size-4 shrink-0" aria-hidden />
               Personal giving note
             </Link>
+            <Link
+              href="/member/bible"
+              className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
+            >
+              <BookOpen className="size-4 shrink-0" aria-hidden />
+              Read the Bible
+            </Link>
           </CardContent>
         </Card>
+
+        {readingPositions && readingPositions.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-serif text-xl font-medium">
+                <BookOpen className="size-5" aria-hidden />
+                Continue reading
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(() => {
+                const raw = readingPositions[0] as unknown as {
+                  chapter: number;
+                  updated_at: string;
+                  book: { name: string };
+                  translation: { abbreviation: string };
+                };
+                return (
+                  <div className="space-y-2">
+                    <p className="text-sm text-foreground">
+                      <span className="font-medium">
+                        {raw.book.name} {raw.chapter}
+                      </span>{" "}
+                      <span className="text-muted-foreground">
+                        ({raw.translation.abbreviation})
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Last read{" "}
+                      {new Date(raw.updated_at).toLocaleDateString()}
+                    </p>
+                    <Link
+                      href="/member/bible"
+                      className="inline-block text-sm font-medium text-primary hover:underline"
+                    >
+                      Continue reading →
+                    </Link>
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>
