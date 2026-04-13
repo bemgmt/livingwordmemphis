@@ -4,11 +4,14 @@ import {
   CalendarPlus,
   CreditCard,
   Heart,
+  Shield,
   UserRound,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
+
+const STAFF_ROLES = new Set(["staff", "executive", "apostle"]);
 
 export default async function MemberDashboard() {
   const { supabase, user } = await requireAuth();
@@ -52,6 +55,7 @@ export default async function MemberDashboard() {
   ]);
 
   const roleLabels = roles?.map((r) => r.role).join(", ") || "member";
+  const isStaff = roles?.some((r) => STAFF_ROLES.has(r.role as string)) ?? false;
 
   return (
     <div className="space-y-8">
@@ -134,6 +138,24 @@ export default async function MemberDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {isStaff && (
+        <Link href="/admin/dashboard" className="block">
+          <Card className="border-primary/20 bg-primary/5 transition-colors hover:border-primary/40">
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+              <Shield className="size-5 text-primary" aria-hidden />
+              <div>
+                <CardTitle className="font-serif text-lg font-medium">
+                  Leadership Dashboard
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Manage members, prayer requests, bulletin, and groups.
+                </p>
+              </div>
+            </CardHeader>
+          </Card>
+        </Link>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

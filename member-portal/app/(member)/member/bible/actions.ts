@@ -183,21 +183,10 @@ export async function deleteNote(noteId: string) {
 }
 
 // ---------------------------------------------------------------------------
-// Share verse to bulletin or group
+// Share verse
 // ---------------------------------------------------------------------------
 
-export async function shareVerse(
-  verseId: string,
-  target: "bulletin" | "group",
-  groupId?: string,
-) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth/login");
-
-  // Fetch verse details with book info
+async function fetchVerseDetails(supabase: Awaited<ReturnType<typeof createClient>>, verseId: string) {
   const { data: verse } = await supabase
     .from("bible_verses")
     .select(
@@ -209,39 +198,62 @@ export async function shareVerse(
     .eq("id", verseId)
     .single();
 
-  if (!verse) return { ok: false as const, error: "Verse not found." };
+  if (!verse) return null;
 
   const book = verse.book as unknown as {
     name: string;
     translation: { abbreviation: string };
   };
   const reference = `${book.name} ${verse.chapter}:${verse.verse} (${book.translation.abbreviation})`;
-  const title = `Scripture: ${reference}`;
-  const body = `"${verse.text}"\n\n— ${reference}`;
+  return { verse, book, reference };
+}
 
-  if (target === "bulletin") {
-    const { error } = await supabase.from("bulletin_posts").insert({
-      author_id: user.id,
-      title,
-      body,
-    });
-    if (error) return { ok: false as const, error: error.message };
-    revalidatePath("/member/bulletin");
-    return { ok: true as const };
-  }
+export async function shareVerse(
+  verseId: string,
+  target: "bulletin",
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
 
-  if (target === "group" && groupId) {
-    const { error } = await supabase.from("forum_topics").insert({
-      author_id: user.id,
-      title,
-      body,
-    });
-    if (error) return { ok: false as const, error: error.message };
-    revalidatePath("/member/forum");
-    return { ok: true as const };
-  }
+  const details = await fetchVerseDetails(supabase, verseId);
+  if (!details) return { ok: false as const, error: "Verse not found." };
 
-  return { ok: false as const, error: "Invalid share target." };
+  const title = `Scripture: ${details.reference}`;
+  const body = `"${details.verse.text}"\n\n— ${details.reference}`;
+
+  const { error } = await supabase.from("bulletin_posts").insert({
+    author_id: user.id,
+    title,
+    body,
+  });
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/member/bulletin");
+  return { ok: true as const };
+}
+
+export async function shareVerseToStudy(verseId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const details = await fetchVerseDetails(supabase, verseId);
+  if (!details) return { ok: false as const, error: "Verse not found." };
+
+  const { error } = await supabase.from("study_saved_scriptures").insert({
+    user_id: user.id,
+    verse_id: verseId,
+    reference: details.reference,
+    verse_text: details.verse.text,
+  });
+
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/member/study");
+  return { ok: true as const };
 }
 
 // ---------------------------------------------------------------------------
