@@ -27,15 +27,16 @@ export async function updateMemberRole(
   action: "add" | "remove",
 ) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth/login");
+  const { user, hasAccess } = await requireExecutiveOrApostle(supabase);
+
+  if (!hasAccess) {
+    return { ok: false, error: "Only executive or apostle roles can manage member roles." };
+  }
 
   if (action === "add") {
     const { error } = await supabase
       .from("user_roles")
-      .insert({ user_id: userId, role, granted_by: user.id });
+      .insert({ user_id: userId, role, granted_by: user!.id });
     if (error) return { ok: false, error: error.message };
   } else {
     const { error } = await supabase
@@ -70,6 +71,11 @@ export async function updateMemberProfile(
   data: { display_name?: string; phone?: string },
 ) {
   const supabase = await createClient();
+  const { hasAccess } = await requireExecutiveOrApostle(supabase);
+
+  if (!hasAccess) {
+    return { ok: false, error: "Only executive or apostle roles can edit member profiles." };
+  }
 
   const { error } = await supabase
     .from("profiles")

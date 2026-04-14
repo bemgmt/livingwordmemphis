@@ -14,8 +14,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { meetsMinRole, type AdminRole } from "@/lib/auth/staff";
 import { memberSidebarNav } from "@/lib/member-sidebar-nav";
-import { adminSidebarNav } from "@/lib/admin-sidebar-nav";
+import { adminSidebarNav, type AdminNavItem } from "@/lib/admin-sidebar-nav";
 
 type NavItem = {
   readonly href: string;
@@ -25,10 +26,12 @@ type NavItem = {
 
 type NavVariant = "member" | "admin";
 
-const navItems: Record<NavVariant, readonly NavItem[]> = {
-  member: memberSidebarNav,
-  admin: adminSidebarNav,
-};
+function getItems(variant: NavVariant, adminRole?: AdminRole): NavItem[] {
+  if (variant === "member") return [...memberSidebarNav];
+  return adminSidebarNav.filter((item: AdminNavItem) =>
+    meetsMinRole(adminRole ?? null, item.minRole),
+  );
+}
 
 function NavLink({
   item,
@@ -61,13 +64,15 @@ function NavLink({
 
 export function SidebarNav({
   variant,
+  adminRole,
   footer,
 }: {
   variant: NavVariant;
+  adminRole?: AdminRole;
   footer?: React.ReactNode;
 }) {
   const pathname = usePathname() ?? "";
-  const items = navItems[variant];
+  const items = getItems(variant, adminRole);
 
   return (
     <nav className="flex flex-1 flex-col gap-1">
@@ -84,15 +89,17 @@ export function SidebarNav({
 export function MobileNav({
   variant,
   title,
+  adminRole,
   footer,
 }: {
   variant: NavVariant;
   title: string;
+  adminRole?: AdminRole;
   footer?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname() ?? "";
-  const items = navItems[variant];
+  const items = getItems(variant, adminRole);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

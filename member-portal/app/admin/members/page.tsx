@@ -1,9 +1,19 @@
+import { redirect } from "next/navigation";
+
+import { getUserAdminRole, meetsMinRole } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
 import { MembersAdmin } from "./members-admin";
 
 export default async function AdminMembersPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+  const role = await getUserAdminRole(supabase, user.id);
+  if (!meetsMinRole(role, "executive")) redirect("/admin/dashboard");
 
   const { data: profiles } = await supabase
     .from("profiles")

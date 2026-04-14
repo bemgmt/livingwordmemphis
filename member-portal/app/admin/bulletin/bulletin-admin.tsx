@@ -30,6 +30,7 @@ import { createAnnouncement, deleteBulletinPost, togglePin } from "./actions";
 type Post = {
   id: string;
   author_id: string;
+  author_name: string | null;
   title: string;
   body: string;
   is_pinned: boolean;
@@ -127,6 +128,9 @@ export function BulletinAdmin({ posts }: { posts: Post[] }) {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                by {post.author_name || "Unknown"}
+              </p>
               <p className="line-clamp-3 whitespace-pre-wrap text-sm text-foreground">
                 {post.body}
               </p>
