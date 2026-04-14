@@ -119,8 +119,8 @@ export function GivingChart({ data }: { data: MonthlyDataPoint[] }) {
                     borderRadius: "0.5rem",
                     fontSize: "0.875rem",
                   }}
-                  formatter={(value: number) =>
-                    [`$${value.toLocaleString()}`, "Total"]
+                  formatter={(value) =>
+                    [`$${Number(value).toLocaleString()}`, "Total"]
                   }
                 />
                 <Bar
