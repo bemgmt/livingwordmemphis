@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
     externalDir: true,
   },
   transpilePackages: ["sanity"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+      },
+    ],
+  },
   async redirects() {
     return [
       { source: "/index.html", destination: "/", permanent: true },

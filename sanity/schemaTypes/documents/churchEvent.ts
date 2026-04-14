@@ -91,6 +91,44 @@ export const churchEvent = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: "isRecurring",
+      title: "Recurring event",
+      type: "boolean",
+      initialValue: false,
+    }),
+    defineField({
+      name: "recurrenceRule",
+      title: "Repeats",
+      type: "string",
+      options: {
+        list: [
+          { title: "Every Sunday", value: "weekly-sunday" },
+          { title: "Every Monday", value: "weekly-monday" },
+          { title: "Every Tuesday", value: "weekly-tuesday" },
+          { title: "Every Wednesday", value: "weekly-wednesday" },
+          { title: "Every Thursday", value: "weekly-thursday" },
+          { title: "Every Friday", value: "weekly-friday" },
+          { title: "Every Saturday", value: "weekly-saturday" },
+          { title: "Every 2 weeks", value: "biweekly" },
+          { title: "Monthly (same day of month)", value: "monthly" },
+        ],
+        layout: "dropdown",
+      },
+      hidden: ({ document }) => !document?.isRecurring,
+      validation: (rule) =>
+        rule.custom((value, ctx) => {
+          if (ctx.document?.isRecurring && !value) return "Required for recurring events";
+          return true;
+        }),
+    }),
+    defineField({
+      name: "recurrenceEndDate",
+      title: "Recurrence ends",
+      type: "date",
+      description: "Leave empty for ongoing events.",
+      hidden: ({ document }) => !document?.isRecurring,
+    }),
+    defineField({
       name: "featured",
       title: "Featured on site",
       type: "boolean",
@@ -110,16 +148,24 @@ export const churchEvent = defineType({
     },
   ],
   preview: {
-    select: { title: "title", startAt: "startAt", media: "image" },
-    prepare({ title, startAt, media }) {
+    select: {
+      title: "title",
+      startAt: "startAt",
+      media: "image",
+      isRecurring: "isRecurring",
+      recurrenceRule: "recurrenceRule",
+    },
+    prepare({ title, startAt, media, isRecurring, recurrenceRule }) {
+      const date = startAt
+        ? new Date(startAt).toLocaleString(undefined, {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })
+        : "";
+      const suffix = isRecurring && recurrenceRule ? ` (${recurrenceRule.replace(/-/g, " ")})` : "";
       return {
         title: title ?? "Event",
-        subtitle: startAt
-          ? new Date(startAt).toLocaleString(undefined, {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })
-          : "",
+        subtitle: `${date}${suffix}`,
         media: previewMedia(media),
       };
     },
