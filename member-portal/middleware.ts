@@ -7,7 +7,8 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  if ((path.startsWith("/member") || path.startsWith("/admin")) && !user) {
+  const isStudioPath = path.startsWith("/admin/studio");
+  if ((path.startsWith("/member") || path.startsWith("/admin")) && !user && !isStudioPath) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/auth/login";
     loginUrl.searchParams.set("next", path);
