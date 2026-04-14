@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   CalendarDays,
   ChevronLeft,
@@ -124,7 +125,12 @@ function EventList({ occurrences }: { occurrences: EventOccurrence[] }) {
           </div>
           <div className="flex flex-1 flex-col justify-center gap-1.5 p-4">
             <h2 className="font-serif text-lg font-semibold text-foreground">
-              {occ.title}
+              <Link
+                href={`/events/${occ.slug}`}
+                className="hover:text-primary hover:underline"
+              >
+                {occ.title}
+              </Link>
             </h2>
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <CalendarDays className="size-4 shrink-0" aria-hidden />

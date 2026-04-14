@@ -6,6 +6,7 @@ import {
   MessagesSquare,
   FolderOpen,
   DollarSign,
+  CalendarCheck,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -99,6 +100,7 @@ export default async function AdminDashboard() {
     { count: forumTopicCount },
     { count: pendingRequestCount },
     { count: reportCount },
+    { count: rsvpCount },
     { data: recentPrayers },
     { data: recentBulletin },
     { data: recentForum },
@@ -126,6 +128,9 @@ export default async function AdminDashboard() {
       .from("content_reports")
       .select("*", { count: "exact", head: true })
       .eq("status", "pending"),
+    supabase
+      .from("event_rsvps")
+      .select("*", { count: "exact", head: true }),
     supabase
       .from("prayer_requests")
       .select("id, created_at, title")
@@ -242,6 +247,12 @@ export default async function AdminDashboard() {
           value={reportCount}
           href="/admin/reports"
           icon={MessageSquare}
+        />
+        <StatCard
+          label="Event RSVPs"
+          value={rsvpCount}
+          href="/admin/events"
+          icon={CalendarCheck}
         />
         <RoleGate minRole="executive">
           <StatCard

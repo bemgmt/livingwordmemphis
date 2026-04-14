@@ -5,6 +5,7 @@ import {
   MessageSquare,
   MessagesSquare,
   FolderOpen,
+  CalendarCheck,
   Palette,
   Flag,
   Shield,
@@ -54,6 +55,12 @@ export const adminSidebarNav: AdminNavItem[] = [
     href: "/admin/groups",
     label: "Groups",
     icon: FolderOpen,
+    minRole: "staff",
+  },
+  {
+    href: "/admin/events",
+    label: "Events",
+    icon: CalendarCheck,
     minRole: "staff",
   },
   {

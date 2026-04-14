@@ -14,6 +14,32 @@ export interface SanityEvent {
   recurrenceEndDate: string | null;
 }
 
+export interface SanityEventDetail extends SanityEvent {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  details: any[] | null;
+  seo: { title: string | null; description: string | null } | null;
+}
+
+export const SINGLE_EVENT_QUERY = `
+  *[_type == "churchEvent" && slug.current == $slug][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    startAt,
+    endAt,
+    location,
+    summary,
+    registrationUrl,
+    "imageUrl": image.asset->url,
+    featured,
+    isRecurring,
+    recurrenceRule,
+    recurrenceEndDate,
+    details,
+    seo
+  }
+`;
+
 export interface EventOccurrence extends SanityEvent {
   occurrenceDate: Date;
   occurrenceEndDate: Date | null;
