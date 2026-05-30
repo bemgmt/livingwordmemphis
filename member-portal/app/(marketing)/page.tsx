@@ -55,10 +55,6 @@ export default function HomePage() {
                   </dt>
                   <dd>7:00 PM</dd>
                 </div>
-                <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                  <dt className="font-medium text-foreground">Prayer meeting</dt>
-                  <dd>Saturdays at 9:00 AM</dd>
-                </div>
               </dl>
             </div>
             <div>
