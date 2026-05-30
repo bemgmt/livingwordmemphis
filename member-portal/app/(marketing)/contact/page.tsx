@@ -56,7 +56,7 @@ export default function ContactPage() {
               {CHURCH_ADDRESS}
             </ValueCard>
             <ValueCard title="Service times" icon={<Clock />}>
-              Sunday worship 10:00 AM · Wednesday Bible study 6:30 PM · Saturday
+              Sunday worship 10:00 AM & 6:00 PM · Wednesday Bible study 7:00 PM · Saturday
               prayer 9:00 AM
             </ValueCard>
           </ValueGrid>

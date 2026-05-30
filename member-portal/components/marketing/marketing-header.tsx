@@ -83,7 +83,7 @@ export function MarketingHeader() {
             </span>
             <span className="inline-flex items-center gap-2">
               <Clock className="size-3.5 shrink-0 opacity-90" aria-hidden />
-              Sundays at 10:00 AM
+              Sundays at 10:00 AM & 6:00 PM
             </span>
           </div>
           <div className="flex items-center gap-3 lg:gap-4">

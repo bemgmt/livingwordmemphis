@@ -47,13 +47,13 @@ export default function HomePage() {
               <dl className="mt-4 space-y-3 text-sm text-muted-foreground">
                 <div className="flex flex-col gap-0.5 border-b border-border/80 pb-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                   <dt className="font-medium text-foreground">Sunday worship</dt>
-                  <dd>10:00 AM</dd>
+                  <dd>10:00 AM & 6:00 PM</dd>
                 </div>
                 <div className="flex flex-col gap-0.5 border-b border-border/80 pb-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                   <dt className="font-medium text-foreground">
                     Wednesday Bible study
                   </dt>
-                  <dd>6:30 PM</dd>
+                  <dd>7:00 PM</dd>
                 </div>
                 <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                   <dt className="font-medium text-foreground">Prayer meeting</dt>

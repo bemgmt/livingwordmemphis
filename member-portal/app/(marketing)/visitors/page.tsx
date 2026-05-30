@@ -51,7 +51,7 @@ export default function VisitorsPage() {
           </p>
           <p>
             <strong className="text-foreground">Service times:</strong> Join us
-            Sundays at 10 AM for powerful worship, relevant teaching, and a place
+            Sundays at 10 AM and 6 PM for powerful worship, relevant teaching, and a place
             to connect. We also offer midweek prayer and discipleship nights to
             continue growing in your walk with God.
           </p>
