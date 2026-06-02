@@ -8,7 +8,9 @@ export default async function AdminForumPage() {
 
   const { data: topics } = await supabase
     .from("forum_topics")
-    .select("id, sermon_id, title, body, author_id, is_locked, is_pinned, created_at")
+    .select(
+      "id, sermon_id, title, body, author_id, is_locked, is_pinned, created_at, approval_status, approved_by, approved_at",
+    )
     .order("created_at", { ascending: false });
 
   return (
@@ -19,7 +21,7 @@ export default async function AdminForumPage() {
             Forum moderation
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage sermon discussion topics. Create new prompts in the{" "}
+            Review and approve sermon discussion topics. Create new prompts in the{" "}
             <Link
               href="/admin/studio"
               className="underline underline-offset-4 hover:text-foreground"

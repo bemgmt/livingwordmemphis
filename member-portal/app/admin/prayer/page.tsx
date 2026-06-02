@@ -7,7 +7,9 @@ export default async function AdminPrayerPage() {
 
   const { data: prayers } = await supabase
     .from("prayer_requests")
-    .select("id, user_id, title, body, visibility, is_anonymous_to_team, created_at, updated_at")
+    .select(
+      "id, user_id, title, body, visibility, is_anonymous_to_team, created_at, updated_at, approval_status, approved_by, approved_at",
+    )
     .order("created_at", { ascending: false });
 
   return (
@@ -17,7 +19,7 @@ export default async function AdminPrayerPage() {
           Prayer requests
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          View and manage all prayer requests submitted by members.
+          Review, approve, and manage all prayer requests submitted by members.
         </p>
       </div>
       <PrayerAdmin prayers={prayers ?? []} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -36,10 +36,13 @@ export function PrayerForm() {
     FormData
   >(submitPrayerRequest, undefined);
 
+  const [showPending, setShowPending] = useState(false);
+
   useEffect(() => {
     if (state?.ok) {
       toast.success("Prayer request submitted.");
       formRef.current?.reset();
+      setShowPending(true);
     } else if (state?.ok === false) {
       toast.error(state.error);
     }
@@ -53,6 +56,26 @@ export function PrayerForm() {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {showPending && (
+          <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm dark:border-amber-800/40 dark:bg-amber-950/30">
+            <span className="shrink-0 text-amber-500">🙏</span>
+            <div>
+              <p className="font-medium text-amber-800 dark:text-amber-300">
+                Request received — pending review
+              </p>
+              <p className="mt-0.5 text-amber-700 dark:text-amber-400">
+                Your prayer request has been submitted and is awaiting admin
+                approval before it&apos;s shared with the prayer team.
+              </p>
+              <button
+                onClick={() => setShowPending(false)}
+                className="mt-2 text-xs font-medium text-amber-700 underline underline-offset-2 hover:text-amber-900 dark:text-amber-400"
+              >
+                Submit another request
+              </button>
+            </div>
+          </div>
+        )}
         <form ref={formRef} action={formAction} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">

@@ -40,3 +40,35 @@ export async function deleteForumReply(replyId: string) {
   revalidatePath("/admin/forum");
   return { ok: true as const };
 }
+
+export async function approveTopic(topicId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from("forum_topics")
+    .update({
+      approval_status: "approved",
+      approved_by: user?.id ?? null,
+      approved_at: new Date().toISOString(),
+    })
+    .eq("id", topicId);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/admin/forum");
+  return { ok: true as const };
+}
+
+export async function rejectTopic(topicId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from("forum_topics")
+    .update({
+      approval_status: "rejected",
+      approved_by: user?.id ?? null,
+      approved_at: new Date().toISOString(),
+    })
+    .eq("id", topicId);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/admin/forum");
+  return { ok: true as const };
+}

@@ -36,7 +36,11 @@ export function LoginForm() {
 
     if (error) {
       setStatus("error");
-      setMessage(error.message);
+      setMessage(
+        error.message.toLowerCase().includes("rate limit")
+          ? "Too many requests. Please wait a few minutes and try again."
+          : error.message,
+      );
       return;
     }
 
@@ -62,7 +66,11 @@ export function LoginForm() {
 
     if (error) {
       setStatus("error");
-      setMessage(error.message);
+      setMessage(
+        error.message.toLowerCase().includes("rate limit")
+          ? "Too many requests. Please wait a few minutes and try again."
+          : error.message,
+      );
       return;
     }
 

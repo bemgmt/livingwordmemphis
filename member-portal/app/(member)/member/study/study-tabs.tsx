@@ -6,6 +6,7 @@ import { StudyAssistant } from "./study-assistant";
 import { StudyNotes } from "./study-notes";
 import { SavedScriptures } from "./saved-scriptures";
 import { BibleNotesList } from "./bible-notes-list";
+import { StudyDownloadButton } from "./study-download-button";
 
 type Session = { id: string; title: string; updated_at: string };
 type StudyNote = {
@@ -47,19 +48,23 @@ export function StudyTabs({
 }) {
   return (
     <Tabs defaultValue="chat" className="w-full">
-      <TabsList className="w-full justify-start">
-        <TabsTrigger value="chat">Chat</TabsTrigger>
-        <TabsTrigger value="notes">My Notes</TabsTrigger>
-        <TabsTrigger value="scriptures">
-          Saved Scriptures
-          {savedScriptures.length > 0 && (
-            <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
-              {savedScriptures.length}
-            </span>
-          )}
-        </TabsTrigger>
-        <TabsTrigger value="bible-notes">Bible Notes</TabsTrigger>
-      </TabsList>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <TabsList className="justify-start">
+          <TabsTrigger value="chat">Chat</TabsTrigger>
+          <TabsTrigger value="notes">My Notes</TabsTrigger>
+          <TabsTrigger value="scriptures">
+            Saved Scriptures
+            {savedScriptures.length > 0 && (
+              <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
+                {savedScriptures.length}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="bible-notes">Bible Notes</TabsTrigger>
+        </TabsList>
+
+        <StudyDownloadButton sessions={sessions} />
+      </div>
 
       <TabsContent value="chat">
         <StudyAssistant sessions={sessions} />

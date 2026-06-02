@@ -13,7 +13,7 @@ export default async function MemberForumPage({
 }) {
   const { page: pageStr } = await searchParams;
   const page = Math.max(1, parseInt(pageStr ?? "1", 10) || 1);
-  const { supabase } = await requireAuth();
+  const { supabase, user } = await requireAuth();
 
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -21,13 +21,12 @@ export default async function MemberForumPage({
   const { data: topics, count } = await supabase
     .from("forum_topics")
     .select(
-      "id, sermon_id, title, body, author_id, is_locked, is_pinned, created_at",
+      "id, sermon_id, title, body, author_id, is_locked, is_pinned, created_at, approval_status",
       { count: "exact" },
     )
     .order("is_pinned", { ascending: false })
     .order("created_at", { ascending: false })
     .range(from, to);
-
   const authorIds = (topics ?? []).map((t) => t.author_id);
   const profileMap = await buildProfileMap(supabase, authorIds);
 
@@ -41,7 +40,7 @@ export default async function MemberForumPage({
           Discuss sermons and grow together in understanding.
         </p>
       </div>
-      <ForumTopicList topics={topics ?? []} profileMap={profileMap} />
+      <ForumTopicList topics={topics ?? []} profileMap={profileMap} currentUserId={user.id} />
       <Pagination page={page} pageSize={PAGE_SIZE} totalCount={count ?? 0} />
     </div>
   );

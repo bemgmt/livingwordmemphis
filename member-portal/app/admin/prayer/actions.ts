@@ -24,3 +24,35 @@ export async function updatePrayerRequest(
   revalidatePath("/admin/prayer");
   return { ok: true as const };
 }
+
+export async function approvePrayer(id: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from("prayer_requests")
+    .update({
+      approval_status: "approved",
+      approved_by: user?.id ?? null,
+      approved_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/admin/prayer");
+  return { ok: true as const };
+}
+
+export async function rejectPrayer(id: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from("prayer_requests")
+    .update({
+      approval_status: "rejected",
+      approved_by: user?.id ?? null,
+      approved_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/admin/prayer");
+  return { ok: true as const };
+}
