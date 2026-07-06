@@ -11,10 +11,12 @@ import {
   Users,
 } from "lucide-react";
 
+import type { LucideIcon } from "lucide-react";
+
 export type MemberNavItem = {
   readonly href: string;
   readonly label: string;
-  readonly icon: any;
+  readonly icon: LucideIcon;
   readonly youthMinistryOnly?: boolean;
 };
 
