@@ -8,9 +8,17 @@ import {
   MessageSquare,
   MessagesSquare,
   UserRound,
+  Users,
 } from "lucide-react";
 
-export const memberSidebarNav = [
+export type MemberNavItem = {
+  readonly href: string;
+  readonly label: string;
+  readonly icon: any;
+  readonly youthMinistryOnly?: boolean;
+};
+
+export const memberSidebarNav: MemberNavItem[] = [
   {
     href: "/member/dashboard",
     label: "Dashboard",
@@ -56,4 +64,10 @@ export const memberSidebarNav = [
     label: "Giving",
     icon: CreditCard,
   },
-] as const;
+  {
+    href: "/member/youth",
+    label: "Youth Ministry",
+    icon: Users,
+    youthMinistryOnly: true,
+  },
+];

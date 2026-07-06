@@ -7,6 +7,7 @@ import { sermonForumTopic } from "./documents/sermonForumTopic";
 import { sermonSeries } from "./documents/sermonSeries";
 import { siteSettings } from "./documents/siteSettings";
 import { studyKnowledgeBase } from "./documents/studyKnowledgeBase";
+import { youthMinistryDocument } from "./documents/youthMinistryDocument";
 import { blockContent } from "./objects/blockContent";
 import { seo } from "./objects/seo";
 
@@ -22,4 +23,5 @@ export const schemaTypes = [
   sermonForumTopic,
   approvedBible,
   studyKnowledgeBase,
+  youthMinistryDocument,
 ];

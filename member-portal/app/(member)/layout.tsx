@@ -14,7 +14,19 @@ export default async function MemberAreaLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireAuth();
+  const { supabase, user } = await requireAuth();
+
+  const { data: roles } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id);
+
+  const roleSet = new Set(roles?.map((r) => r.role) ?? []);
+  const isYouthMember =
+    roleSet.has("youth_ministry") ||
+    roleSet.has("staff") ||
+    roleSet.has("executive") ||
+    roleSet.has("apostle");
 
   const footer = (
     <>
@@ -33,7 +45,11 @@ export default async function MemberAreaLayout({
       <aside className="hidden w-64 shrink-0 border-r border-border bg-card p-6 lg:flex lg:flex-col">
         <ChurchLogo heightClass="h-11" />
         <div className="mt-8 flex flex-1 flex-col">
-          <SidebarNav variant="member" footer={footer} />
+          <SidebarNav
+            variant="member"
+            isYouthMember={isYouthMember}
+            footer={footer}
+          />
         </div>
       </aside>
 
@@ -42,6 +58,7 @@ export default async function MemberAreaLayout({
           <MobileNav
             variant="member"
             title="Living Word Memphis"
+            isYouthMember={isYouthMember}
             footer={footer}
           />
         </div>

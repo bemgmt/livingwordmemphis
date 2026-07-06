@@ -22,12 +22,21 @@ type NavItem = {
   readonly href: string;
   readonly label: string;
   readonly icon: LucideIcon;
+  readonly youthMinistryOnly?: boolean;
 };
 
 type NavVariant = "member" | "admin";
 
-function getItems(variant: NavVariant, adminRole?: AdminRole): NavItem[] {
-  if (variant === "member") return [...memberSidebarNav];
+function getItems(
+  variant: NavVariant,
+  adminRole?: AdminRole,
+  isYouthMember?: boolean,
+): NavItem[] {
+  if (variant === "member") {
+    return memberSidebarNav.filter(
+      (item) => !item.youthMinistryOnly || isYouthMember,
+    ) as NavItem[];
+  }
   return adminSidebarNav.filter((item: AdminNavItem) =>
     meetsMinRole(adminRole ?? null, item.minRole),
   );
@@ -65,14 +74,16 @@ function NavLink({
 export function SidebarNav({
   variant,
   adminRole,
+  isYouthMember,
   footer,
 }: {
   variant: NavVariant;
   adminRole?: AdminRole;
+  isYouthMember?: boolean;
   footer?: React.ReactNode;
 }) {
   const pathname = usePathname() ?? "";
-  const items = getItems(variant, adminRole);
+  const items = getItems(variant, adminRole, isYouthMember);
 
   return (
     <nav className="flex flex-1 flex-col gap-1">
@@ -90,16 +101,18 @@ export function MobileNav({
   variant,
   title,
   adminRole,
+  isYouthMember,
   footer,
 }: {
   variant: NavVariant;
   title: string;
   adminRole?: AdminRole;
+  isYouthMember?: boolean;
   footer?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname() ?? "";
-  const items = getItems(variant, adminRole);
+  const items = getItems(variant, adminRole, isYouthMember);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

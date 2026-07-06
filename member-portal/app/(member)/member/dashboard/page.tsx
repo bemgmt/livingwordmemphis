@@ -10,6 +10,8 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
+import { sanityFetch } from "@/lib/sanity/client";
+import { Download } from "lucide-react";
 
 const STAFF_ROLES = new Set(["staff", "executive", "apostle"]);
 
@@ -55,7 +57,23 @@ export default async function MemberDashboard() {
   ]);
 
   const roleLabels = roles?.map((r) => r.role).join(", ") || "member";
+  const roleSet = new Set(roles?.map((r) => r.role) ?? []);
   const isStaff = roles?.some((r) => STAFF_ROLES.has(r.role as string)) ?? false;
+  
+  const isYouthMember =
+    roleSet.has("youth_ministry") || isStaff;
+
+  let schoolSuppliesUrl: string | null = null;
+  if (isYouthMember) {
+    const docs = await sanityFetch<{ fileUrl: string }[]>(
+      `*[_type == "youthMinistryDocument" && title match "ShopPrepList"] { "fileUrl": file.asset->url }`,
+      {},
+      60,
+    );
+    if (docs.length > 0) {
+      schoolSuppliesUrl = docs[0].fileUrl;
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -187,6 +205,15 @@ export default async function MemberDashboard() {
               <BookOpen className="size-4 shrink-0" aria-hidden />
               Read the Bible
             </Link>
+            {isYouthMember && schoolSuppliesUrl && (
+              <a
+                href={`${schoolSuppliesUrl}?dl=`}
+                className="inline-flex items-center gap-2 rounded-md border border-primary text-primary bg-primary/5 px-4 py-2 text-sm font-medium shadow-sm hover:bg-primary/10"
+              >
+                <Download className="size-4 shrink-0" aria-hidden />
+                School Supplies List
+              </a>
+            )}
           </CardContent>
         </Card>
 
