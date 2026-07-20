@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { Download, FolderOpen, Users } from "lucide-react";
+import { ChevronDown, Download, FolderOpen, Users } from "lucide-react";
 
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 import { sanityFetch } from "@/lib/sanity/client";
@@ -51,6 +51,10 @@ function documentLabel(document: YouthDocument) {
   return document.resourceType
     ? resourceTypeLabels[document.resourceType] ?? document.title
     : document.title;
+}
+
+function fileCountLabel(count: number) {
+  return `${count} ${count === 1 ? "file" : "files"}`;
 }
 
 export default async function YouthMinistryPage() {
@@ -130,20 +134,35 @@ export default async function YouthMinistryPage() {
                   {series}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-3">
                 {folders.map((folder) => (
-                  <section key={folder.label}>
-                    <h3 className="mb-3 flex items-center gap-2 font-medium text-foreground">
-                      <FolderOpen className="size-4 text-primary" aria-hidden />
-                      {folder.label}
-                    </h3>
-                    <ul className="space-y-3">
+                  <details
+                    key={folder.label}
+                    className="group overflow-hidden rounded-lg border border-border bg-background"
+                  >
+                    <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+                      <FolderOpen
+                        className="size-5 shrink-0 text-primary"
+                        aria-hidden
+                      />
+                      <span className="min-w-0 flex-1 font-medium text-foreground">
+                        {folder.label}
+                      </span>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {fileCountLabel(folder.documents.length)}
+                      </span>
+                      <ChevronDown
+                        className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+                        aria-hidden
+                      />
+                    </summary>
+                    <ul className="space-y-2 border-t border-border bg-secondary/20 p-3">
                       {folder.documents.map((document) => (
                         <li
                           key={document._id}
-                          className="flex flex-col gap-2 rounded-lg border border-border p-4 transition-colors hover:bg-secondary/50 sm:flex-row sm:items-center sm:justify-between"
+                          className="flex flex-col gap-3 rounded-lg border border-border bg-background p-3 sm:flex-row sm:items-center sm:justify-between"
                         >
-                          <div>
+                          <div className="min-w-0">
                             <p className="font-medium text-foreground">
                               {documentLabel(document)}
                             </p>
@@ -156,7 +175,7 @@ export default async function YouthMinistryPage() {
                           {document.fileUrl && (
                             <a
                               href={`${document.fileUrl}?dl=`}
-                              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
+                              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
                             >
                               <Download className="size-4" aria-hidden />
                               Download
@@ -165,7 +184,7 @@ export default async function YouthMinistryPage() {
                         </li>
                       ))}
                     </ul>
-                  </section>
+                  </details>
                 ))}
               </CardContent>
             </Card>
