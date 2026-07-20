@@ -1,0 +1,26 @@
+{
+  "series": "Stick Together",
+  "files": [
+    { "path": "series-resources/overview-video.mp4", "title": "Series overview video", "resourceType": "overview" },
+    { "path": "series-resources/shopping-prep-list.docx", "title": "Shopping & prep list", "resourceType": "shopping-prep" },
+    { "path": "series-resources/high-school-hacks.pdf", "title": "High school hacks", "resourceType": "high-school-hacks" },
+    { "path": "series-resources/middle-school-hacks.pdf", "title": "Middle school hacks", "resourceType": "middle-school-hacks" },
+    { "path": "week-01/lesson-outline.pdf", "title": "Lesson outline", "resourceType": "lesson-outline" },
+    { "path": "week-01/lesson-guide.pdf", "title": "Lesson guide", "resourceType": "lesson-guide" },
+    { "path": "week-01/discussion-questions.pdf", "title": "Discussion questions", "resourceType": "discussion-questions" },
+    { "path": "week-01/handout-illustrated-influence.pdf", "title": "Illustrated Influence handout", "resourceType": "handout" },
+    { "path": "week-01/handout-response.pdf", "title": "Response handout", "resourceType": "handout" },
+    { "path": "week-02/lesson-outline.pdf", "title": "Lesson outline", "resourceType": "lesson-outline" },
+    { "path": "week-02/lesson-guide.pdf", "title": "Lesson guide", "resourceType": "lesson-guide" },
+    { "path": "week-02/discussion-questions.pdf", "title": "Discussion questions", "resourceType": "discussion-questions" },
+    { "path": "week-02/handout-mad-libs-theater.pdf", "title": "Mad Libs Theater handout", "resourceType": "handout" },
+    { "path": "week-03/lesson-outline.pdf", "title": "Lesson outline", "resourceType": "lesson-outline" },
+    { "path": "week-03/lesson-guide.pdf", "title": "Lesson guide", "resourceType": "lesson-guide" },
+    { "path": "week-03/discussion-questions.pdf", "title": "Discussion questions", "resourceType": "discussion-questions" },
+    { "path": "week-03/handout-youre-worth-it.pdf", "title": "You're Worth It handout", "resourceType": "handout" },
+    { "path": "week-04/lesson-outline.pdf", "title": "Lesson outline", "resourceType": "lesson-outline" },
+    { "path": "week-04/lesson-guide.pdf", "title": "Lesson guide", "resourceType": "lesson-guide" },
+    { "path": "week-04/discussion-questions.pdf", "title": "Discussion questions", "resourceType": "discussion-questions" },
+    { "path": "week-04/handout-adventure-stations.pdf", "title": "Adventure Stations handout", "resourceType": "handout" }
+  ]
+}
