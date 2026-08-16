@@ -1,5 +1,4 @@
-import { createReadStream } from "fs";
-import { readdir, readFile } from "fs/promises";
+import { readdir, readFile, stat } from "fs/promises";
 import { basename, extname, join, relative } from "path";
 import { getCliClient } from "sanity/cli";
 
@@ -38,6 +37,87 @@ const resourceLabels: Record<ResourceType, string> = {
 
 const client = getCliClient();
 const curriculumRoot = join(__dirname, "../curriculum");
+const portalEnvPath = join(__dirname, "../member-portal/.env.local");
+const storageBucket = "youth-curriculum";
+
+const contentTypes: Record<string, string> = {
+  ".pdf": "application/pdf",
+  ".doc": "application/msword",
+  ".docx":
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ".ppt": "application/vnd.ms-powerpoint",
+  ".pptx":
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  ".mp4": "video/mp4",
+};
+
+async function loadPortalEnv() {
+  const values = new Map<string, string>();
+  const source = await readFile(portalEnvPath, "utf8");
+
+  for (const line of source.split(/\r?\n/)) {
+    const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+    if (!match) continue;
+    const value = match[2].replace(/^(["'])(.*)\1$/, "$2");
+    values.set(match[1], value);
+  }
+
+  const url = values.get("NEXT_PUBLIC_SUPABASE_URL");
+  const serviceRoleKey = values.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !serviceRoleKey) {
+    throw new Error(
+      "member-portal/.env.local must define NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.",
+    );
+  }
+
+  return { url: url.replace(/\/$/, ""), serviceRoleKey };
+}
+
+function safePathSegment(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "file";
+}
+
+function storagePathFor(series: string, filePath: string) {
+  const seriesSlug = safePathSegment(series).toLowerCase();
+  const path = filePath.split(/[\\/]/).map(safePathSegment).join("/");
+  return `bulk/${seriesSlug}/${path}`;
+}
+
+async function uploadToProtectedStorage(
+  filePath: string,
+  storagePath: string,
+  contentType: string,
+  supabase: { url: string; serviceRoleKey: string },
+) {
+  const encodedPath = storagePath
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+  const response = await fetch(
+    `${supabase.url}/storage/v1/object/${storageBucket}/${encodedPath}`,
+    {
+      method: "POST",
+      headers: {
+        apikey: supabase.serviceRoleKey,
+        Authorization: `Bearer ${supabase.serviceRoleKey}`,
+        "Content-Type": contentType,
+        "Cache-Control": "max-age=3600",
+        "x-upsert": "true",
+      },
+      body: await readFile(filePath),
+    },
+  );
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(
+      `Supabase upload failed for ${storagePath}: ${response.status} ${detail}`,
+    );
+  }
+}
 
 function weekFromPath(filePath: string) {
   const match = filePath.match(/(?:^|[\\/])week-(\d+)(?:[\\/]|$)/i);
@@ -96,29 +176,70 @@ async function main() {
 
   const seriesDirectory = join(curriculumRoot, seriesName);
   const manifest = await readManifest(seriesDirectory);
+  const supabase = await loadPortalEnv();
   console.log(`Uploading ${manifest.files.length} files for ${manifest.series}.`);
 
   for (const file of manifest.files) {
     const filePath = join(seriesDirectory, file.path);
     const week = weekFromPath(file.path);
-    const asset = await client.assets.upload("file", createReadStream(filePath), {
-      filename: basename(filePath),
-    });
+    const extension = extname(filePath).toLowerCase();
+    const contentType = contentTypes[extension];
+    if (!contentType) throw new Error(`Unsupported file type: ${file.path}`);
 
-    await client.create({
-      _type: "youthMinistryDocument",
+    const storagePath = storagePathFor(manifest.series, file.path);
+    const fileStat = await stat(filePath);
+    await uploadToProtectedStorage(
+      filePath,
+      storagePath,
+      contentType,
+      supabase,
+    );
+
+    const sourcePath = file.path.replaceAll("\\", "/");
+    const existingId = await client.fetch<string | null>(
+      `*[
+        _type == "youthMinistryDocument" &&
+        (
+          sourcePath == $sourcePath ||
+          (
+            series == $series &&
+            title == $title &&
+            resourceType == $resourceType &&
+            coalesce(week, 0) == $week
+          )
+        )
+      ][0]._id`,
+      {
+        sourcePath,
+        series: manifest.series,
+        title: file.title,
+        resourceType: file.resourceType,
+        week: week ?? 0,
+      },
+    );
+
+    const document = {
       title: file.title,
       description: file.description ?? resourceLabels[file.resourceType],
-      file: {
-        _type: "file",
-        asset: { _type: "reference", _ref: asset._id },
+      protectedFile: {
+        storagePath,
+        originalFilename: basename(filePath),
+        contentType,
+        size: fileStat.size,
       },
+      sourcePath,
       series: manifest.series,
       resourceType: file.resourceType,
       week,
-    });
+    };
 
-    console.log(`Uploaded ${file.path}`);
+    if (existingId) {
+      await client.patch(existingId).set(document).unset(["file"]).commit();
+    } else {
+      await client.create({ _type: "youthMinistryDocument", ...document });
+    }
+
+    console.log(`Protected ${file.path} and updated Sanity.`);
   }
 }
 

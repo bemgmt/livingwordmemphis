@@ -33,7 +33,14 @@ type Member = {
   roles: string[];
 };
 
-const ALL_ROLES = ["member", "ministry_leader", "staff", "executive", "apostle"];
+const ALL_ROLES = [
+  { value: "member", label: "Member" },
+  { value: "ministry_leader", label: "Ministry leader" },
+  { value: "youth_ministry", label: "Youth ministry access" },
+  { value: "staff", label: "Leadership" },
+  { value: "executive", label: "Executive team" },
+  { value: "apostle", label: "Apostle" },
+] as const;
 
 export function MembersAdmin({ members }: { members: Member[] }) {
   const [search, setSearch] = useState("");
@@ -90,19 +97,19 @@ export function MembersAdmin({ members }: { members: Member[] }) {
               )}
               <div className="flex flex-wrap gap-2">
                 {ALL_ROLES.map((role) => {
-                  const has = m.roles.includes(role);
+                  const has = m.roles.includes(role.value);
                   return (
                     <button
-                      key={role}
+                      key={role.value}
                       disabled={isPending}
-                      onClick={() => handleRoleToggle(m.id, role, has)}
+                      onClick={() => handleRoleToggle(m.id, role.value, has)}
                       className={`rounded-full px-3 py-0.5 text-xs font-medium transition-colors ${
                         has
                           ? "bg-primary text-primary-foreground"
                           : "border border-border text-muted-foreground hover:bg-secondary"
                       }`}
                     >
-                      {role.replace("_", " ")}
+                      {role.label}
                     </button>
                   );
                 })}

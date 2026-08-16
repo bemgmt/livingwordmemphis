@@ -7,3 +7,15 @@ bibles/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Private youth curriculum binaries (keep manifest.json files tracked)
+/curriculum/**/*.pdf
+/curriculum/**/*.doc
+/curriculum/**/*.docx
+/curriculum/**/*.ppt
+/curriculum/**/*.pptx
+/curriculum/**/*.mp4
+/curriculum/**/*.txt
+
+# Locally generated document deliverables
+/output/pdf/

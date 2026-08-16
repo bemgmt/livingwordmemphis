@@ -1,6 +1,8 @@
 import { defineField, defineType } from "sanity";
 import { UsersIcon } from "@sanity/icons";
 
+import { YouthCurriculumFileInput } from "../../components/YouthCurriculumFileInput";
+
 const resourceTypes = [
   { title: "Overview", value: "overview" },
   { title: "Shopping / prep list", value: "shopping-prep" },
@@ -32,13 +34,57 @@ export const youthMinistryDocument = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "file",
-      title: "Document File",
-      type: "file",
-      options: {
-        accept: ".pdf,.doc,.docx,.ppt,.pptx,.mp4",
+      name: "protectedFile",
+      title: "Protected curriculum file",
+      type: "object",
+      description:
+        "The file is uploaded to private Supabase Storage. Youth members receive a short-lived download link after the portal checks their access.",
+      components: {
+        input: YouthCurriculumFileInput,
       },
+      fields: [
+        defineField({
+          name: "storagePath",
+          title: "Storage path",
+          type: "string",
+          readOnly: true,
+        }),
+        defineField({
+          name: "originalFilename",
+          title: "Original filename",
+          type: "string",
+          readOnly: true,
+        }),
+        defineField({
+          name: "contentType",
+          title: "Content type",
+          type: "string",
+          readOnly: true,
+        }),
+        defineField({
+          name: "size",
+          title: "File size",
+          type: "number",
+          readOnly: true,
+        }),
+      ],
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "file",
+      title: "Legacy public Sanity file",
+      type: "file",
+      description:
+        "Temporary migration field. New and replacement curriculum must use Protected curriculum file.",
+      readOnly: true,
+      hidden: ({ document }) => Boolean(document?.protectedFile),
+    }),
+    defineField({
+      name: "sourcePath",
+      title: "Bulk upload source path",
+      type: "string",
+      hidden: true,
+      readOnly: true,
     }),
     defineField({
       name: "series",

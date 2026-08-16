@@ -7,6 +7,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { userHasYouthAccess } from "@/lib/auth/youth";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 import { sanityFetch } from "@/lib/sanity/client";
 
@@ -17,7 +18,10 @@ type YouthDocument = {
   series: string | null;
   week: number | null;
   resourceType: string | null;
-  fileUrl: string | null;
+  protectedFile: {
+    originalFilename: string | null;
+    storagePath: string | null;
+  } | null;
 };
 
 const documentsQuery = `*[_type == "youthMinistryDocument"] | order(series asc, week asc) {
@@ -27,7 +31,7 @@ const documentsQuery = `*[_type == "youthMinistryDocument"] | order(series asc, 
   series,
   week,
   resourceType,
-  "fileUrl": file.asset->url
+  protectedFile { originalFilename, storagePath }
 }`;
 
 const resourceTypeLabels: Record<string, string> = {
@@ -70,20 +74,8 @@ function canonicalSeriesName(series: string | null) {
 export default async function YouthMinistryPage() {
   const { supabase, user } = await requireAuth();
 
-  const { data: roles } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", user.id);
-
-  const roleSet = new Set(roles?.map((r) => r.role) ?? []);
-  const isYouthMember =
-    roleSet.has("youth_ministry") ||
-    roleSet.has("staff") ||
-    roleSet.has("executive") ||
-    roleSet.has("apostle");
-
-  if (!isYouthMember) {
-    redirect("/member/dashboard");
+  if (!(await userHasYouthAccess(supabase, user.id))) {
+    redirect("/member/access-denied?area=youth-ministry");
   }
 
   const documents = await sanityFetch<YouthDocument[]>(documentsQuery, {}, 10);
@@ -202,14 +194,19 @@ export default async function YouthMinistryPage() {
                                 </p>
                               )}
                             </div>
-                            {document.fileUrl && (
+                            {document.protectedFile?.storagePath && (
                               <a
-                                href={`${document.fileUrl}?dl=`}
+                                href={`/api/youth/resources/${encodeURIComponent(document._id)}`}
                                 className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
                               >
                                 <Download className="size-4" aria-hidden />
                                 Download
                               </a>
+                            )}
+                            {!document.protectedFile?.storagePath && (
+                              <span className="text-xs text-muted-foreground">
+                                Awaiting secure migration
+                              </span>
                             )}
                           </li>
                         ))}
