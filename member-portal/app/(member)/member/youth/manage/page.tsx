@@ -28,6 +28,8 @@ export default async function ManageYouthCurriculumPage() {
   const documents =
     await sanityWriteClient.fetch<ManageableCurriculumDocument[]>(
       documentsQuery,
+      {},
+      { cache: "no-store", perspective: "published" },
     );
 
   return (

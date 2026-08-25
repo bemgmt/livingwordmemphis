@@ -19,7 +19,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { deleteYouthCurriculum } from "./actions";
+import {
+  deleteYouthCurriculum,
+  deleteYouthCurriculumSeries,
+} from "./actions";
 
 export type ManageableCurriculumDocument = {
   _id: string;
@@ -133,6 +136,50 @@ export function CurriculumManager({
     }
   }
 
+  async function deleteFilteredSeries() {
+    if (seriesFilter === "all") return;
+
+    const series = seriesFilter;
+    const deletedIds = new Set(
+      documents
+        .filter(
+          (document) => canonicalSeriesName(document.series) === series,
+        )
+        .map((document) => document._id),
+    );
+
+    setIsDeleting(true);
+    try {
+      const result = await deleteYouthCurriculumSeries(series);
+      if (!result.ok) throw new Error(result.error);
+
+      setDocuments((current) =>
+        current.filter(
+          (document) => canonicalSeriesName(document.series) !== series,
+        ),
+      );
+      setSelectedIds(
+        (current) =>
+          new Set(Array.from(current).filter((id) => !deletedIds.has(id))),
+      );
+      setSeriesFilter("all");
+      toast.success(
+        `${series} series deleted (${result.deleted} ${
+          result.deleted === 1 ? "item" : "items"
+        })`,
+      );
+      router.push("/member/youth");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "The curriculum series could not be deleted.",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <Card>
@@ -180,39 +227,82 @@ export function CurriculumManager({
               Select all shown ({visibleDocuments.length})
             </label>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="destructive"
-                  size="lg"
-                  disabled={selectedIds.size === 0 || isDeleting}
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                  Delete selected ({selectedIds.size})
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Delete {selectedIds.size} curriculum {selectedIds.size === 1 ? "item" : "items"}?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This permanently removes the selected Sanity records and
-                    their protected Supabase files. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    disabled={isDeleting}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    onClick={() => void deleteSelected()}
+            <div className="flex flex-wrap justify-end gap-2">
+              {seriesFilter !== "all" ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="lg"
+                      disabled={isDeleting}
+                    >
+                      <Trash2 className="size-4" aria-hidden />
+                      Delete entire series
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Delete the {seriesFilter} series?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This permanently removes every published item and draft
+                        in this series, then removes the series folder from the
+                        Youth Ministry page. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={isDeleting}>
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        disabled={isDeleting}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={() => void deleteFilteredSeries()}
+                      >
+                        Delete series and files
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : null}
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="lg"
+                    disabled={selectedIds.size === 0 || isDeleting}
                   >
-                    Permanently delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                    <Trash2 className="size-4" aria-hidden />
+                    Delete selected ({selectedIds.size})
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Delete {selectedIds.size} curriculum {selectedIds.size === 1 ? "item" : "items"}?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This permanently removes the selected Sanity records and
+                      their protected Supabase files. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDeleting}>
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={isDeleting}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={() => void deleteSelected()}
+                    >
+                      Permanently delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </CardContent>
       </Card>

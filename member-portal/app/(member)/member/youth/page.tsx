@@ -14,7 +14,7 @@ import {
   userHasYouthAccess,
 } from "@/lib/auth/youth";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
-import { sanityFetch } from "@/lib/sanity/client";
+import { sanityWriteClient } from "@/lib/sanity/client";
 
 type YouthDocument = {
   _id: string;
@@ -29,7 +29,10 @@ type YouthDocument = {
   } | null;
 };
 
-const documentsQuery = `*[_type == "youthMinistryDocument"] | order(series asc, week asc) {
+const documentsQuery = `*[
+  _type == "youthMinistryDocument" &&
+  !(_id in path("drafts.**"))
+] | order(series asc, week asc) {
   _id,
   title,
   description,
@@ -84,7 +87,10 @@ export default async function YouthMinistryPage() {
   }
 
   const [documents, canManageCurriculum] = await Promise.all([
-    sanityFetch<YouthDocument[]>(documentsQuery, {}, 10),
+    sanityWriteClient.fetch<YouthDocument[]>(documentsQuery, {}, {
+      cache: "no-store",
+      perspective: "published",
+    }),
     userCanDeleteYouthContent(supabase, user.id),
   ]);
 

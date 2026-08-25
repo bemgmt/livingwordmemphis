@@ -13,10 +13,13 @@ const SANITY_ID_PATTERN = /^[a-zA-Z0-9._-]+$/;
 
 type CurriculumDocument = {
   _id: string;
+  series?: string | null;
   protectedFile?: {
     storagePath?: string | null;
   } | null;
 };
+
+type ServerSupabaseClient = Awaited<ReturnType<typeof createClient>>;
 
 export type BulkDeleteResult =
   | { ok: true; deleted: number; storageFilesDeleted: number }
@@ -45,9 +48,15 @@ function normalizedDocumentIds(value: unknown) {
   return ids;
 }
 
-export async function deleteYouthCurriculum(
-  requestedDocumentIds: unknown,
-): Promise<BulkDeleteResult> {
+function canonicalSeriesName(series: string | null | undefined) {
+  const name = series?.trim() || "Other";
+  return /^wonder(?:\s|\(|$)/i.test(name) ? "Wonder" : name;
+}
+
+async function authorizeCurriculumDeletion(): Promise<
+  | { ok: true; supabase: ServerSupabaseClient }
+  | { ok: false; error: string }
+> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -62,51 +71,20 @@ export async function deleteYouthCurriculum(
     };
   }
 
-  const documentIds = normalizedDocumentIds(requestedDocumentIds);
-  if (!documentIds) {
-    return {
-      ok: false,
-      error: `Select between 1 and ${MAX_BULK_DELETE} curriculum items.`,
-    };
-  }
-
   if (!process.env.LWM_SANITY_TOKEN) {
     console.error("LWM_SANITY_TOKEN is required for curriculum deletion.");
     return { ok: false, error: "Curriculum deletion is not configured." };
   }
 
-  const draftIds = documentIds.map((id) => `drafts.${id}`);
-  let documents: CurriculumDocument[];
+  return { ok: true, supabase };
+}
 
-  try {
-    documents = await sanityWriteClient.fetch<CurriculumDocument[]>(
-      `*[
-        _type == "youthMinistryDocument" &&
-        (_id in $documentIds || _id in $draftIds)
-      ] {
-        _id,
-        protectedFile { storagePath }
-      }`,
-      { documentIds, draftIds },
-    );
-  } catch (error) {
-    console.error("Unable to load curriculum selected for deletion", error);
-    return {
-      ok: false,
-      error: "The selected curriculum could not be verified.",
-    };
-  }
-
-  const publishedIds = new Set(
-    documents.map((document) => document._id.replace(/^drafts\./, "")),
-  );
-  if (documentIds.some((id) => !publishedIds.has(id))) {
-    return {
-      ok: false,
-      error:
-        "One or more selected curriculum items no longer exist. Refresh and try again.",
-    };
-  }
+async function deleteCurriculumDocuments(
+  supabase: ServerSupabaseClient,
+  documents: CurriculumDocument[],
+  deletedCount: number,
+): Promise<BulkDeleteResult> {
+  const documentIds = documents.map((document) => document._id);
 
   const storagePaths = Array.from(
     new Set(
@@ -118,12 +96,39 @@ export async function deleteYouthCurriculum(
     ),
   );
 
+  let deletableStoragePaths = storagePaths;
+  if (storagePaths.length > 0) {
+    try {
+      const retainedReferences = await sanityWriteClient.fetch<string[]>(
+        `*[
+          _type == "youthMinistryDocument" &&
+          !(_id in $documentIds) &&
+          protectedFile.storagePath in $storagePaths
+        ].protectedFile.storagePath`,
+        { documentIds, storagePaths },
+      );
+      const retainedPaths = new Set(retainedReferences);
+      deletableStoragePaths = storagePaths.filter(
+        (storagePath) => !retainedPaths.has(storagePath),
+      );
+    } catch (error) {
+      console.error("Unable to verify shared curriculum files", error);
+      return {
+        ok: false,
+        error: "The selected files could not be checked for shared references.",
+      };
+    }
+  }
+
   for (
     let index = 0;
-    index < storagePaths.length;
+    index < deletableStoragePaths.length;
     index += STORAGE_DELETE_BATCH_SIZE
   ) {
-    const paths = storagePaths.slice(index, index + STORAGE_DELETE_BATCH_SIZE);
+    const paths = deletableStoragePaths.slice(
+      index,
+      index + STORAGE_DELETE_BATCH_SIZE,
+    );
     const { error } = await supabase.storage
       .from(YOUTH_CURRICULUM_BUCKET)
       .remove(paths);
@@ -158,7 +163,118 @@ export async function deleteYouthCurriculum(
 
   return {
     ok: true,
-    deleted: documentIds.length,
-    storageFilesDeleted: storagePaths.length,
+    deleted: deletedCount,
+    storageFilesDeleted: deletableStoragePaths.length,
   };
+}
+
+export async function deleteYouthCurriculum(
+  requestedDocumentIds: unknown,
+): Promise<BulkDeleteResult> {
+  const authorization = await authorizeCurriculumDeletion();
+  if (!authorization.ok) return authorization;
+
+  const documentIds = normalizedDocumentIds(requestedDocumentIds);
+  if (!documentIds) {
+    return {
+      ok: false,
+      error: `Select between 1 and ${MAX_BULK_DELETE} curriculum items.`,
+    };
+  }
+
+  const draftIds = documentIds.map((id) => `drafts.${id}`);
+  let documents: CurriculumDocument[];
+
+  try {
+    documents = await sanityWriteClient.fetch<CurriculumDocument[]>(
+      `*[
+        _type == "youthMinistryDocument" &&
+        (_id in $documentIds || _id in $draftIds)
+      ] {
+        _id,
+        series,
+        protectedFile { storagePath }
+      }`,
+      { documentIds, draftIds },
+    );
+  } catch (error) {
+    console.error("Unable to load curriculum selected for deletion", error);
+    return {
+      ok: false,
+      error: "The selected curriculum could not be verified.",
+    };
+  }
+
+  const publishedIds = new Set(
+    documents.map((document) => document._id.replace(/^drafts\./, "")),
+  );
+  if (documentIds.some((id) => !publishedIds.has(id))) {
+    return {
+      ok: false,
+      error:
+        "One or more selected curriculum items no longer exist. Refresh and try again.",
+    };
+  }
+
+  return deleteCurriculumDocuments(
+    authorization.supabase,
+    documents,
+    documentIds.length,
+  );
+}
+
+export async function deleteYouthCurriculumSeries(
+  requestedSeries: unknown,
+): Promise<BulkDeleteResult> {
+  const series =
+    typeof requestedSeries === "string" ? requestedSeries.trim() : "";
+  if (!series || series.length > 200) {
+    return { ok: false, error: "Select a valid curriculum series." };
+  }
+
+  const authorization = await authorizeCurriculumDeletion();
+  if (!authorization.ok) return authorization;
+
+  let allDocuments: CurriculumDocument[];
+  try {
+    allDocuments = await sanityWriteClient.fetch<CurriculumDocument[]>(
+      `*[_type == "youthMinistryDocument"] {
+        _id,
+        series,
+        protectedFile { storagePath }
+      }`,
+    );
+  } catch (error) {
+    console.error("Unable to load the curriculum series for deletion", error);
+    return { ok: false, error: "The curriculum series could not be verified." };
+  }
+
+  const canonicalSeries = canonicalSeriesName(series);
+  const documents = allDocuments.filter(
+    (document) => canonicalSeriesName(document.series) === canonicalSeries,
+  );
+
+  if (documents.length === 0) {
+    return {
+      ok: false,
+      error: "That curriculum series is already empty. Refresh and try again.",
+    };
+  }
+
+  if (documents.length > MAX_BULK_DELETE) {
+    return {
+      ok: false,
+      error: `A series cannot contain more than ${MAX_BULK_DELETE} records for one deletion.`,
+    };
+  }
+
+  const publishedCount = new Set(
+    documents.map((document) => document._id.replace(/^drafts\./, "")),
+  ).size;
+
+  return deleteCurriculumDocuments(
+    authorization.supabase,
+    documents,
+    publishedCount,
+  );
 }

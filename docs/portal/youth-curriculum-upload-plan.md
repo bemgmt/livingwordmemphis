@@ -65,6 +65,12 @@ the Storage API before the corresponding published/draft Sanity records are
 removed. The server mutation enforces the same role check; hiding the button is
 not the authorization boundary.
 
+To remove a complete folder, filter to its series and choose **Delete entire
+series**. This removes every published record and draft in that series. Series
+and week folders are derived from Sanity records, so the folder disappears when
+the last record is removed; there is no separate Supabase folder object to
+delete.
+
 For existing Sanity documents, run `npm run curriculum:migrate-legacy` from `sanity`. The migration is resumable: it reuses deterministic Supabase object paths, patches a document only after its upload succeeds, and leaves unsupported or oversized legacy assets unchanged for manual resolution. During the August 16, 2026 migration, one 190,513,333-byte `Find Your Way` handout exceeded the 50 MB project limit; it was rendered at 300 DPI, compressed to 3,056,258 bytes, checksum-verified after upload, and migrated separately. All 349 published youth curriculum documents now use protected Supabase paths.
 
 ## Verification plan
