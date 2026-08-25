@@ -4,10 +4,15 @@ import {
   ChevronDown,
   Download,
   FolderOpen,
+  Settings,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 
-import { userHasYouthAccess } from "@/lib/auth/youth";
+import {
+  userCanDeleteYouthContent,
+  userHasYouthAccess,
+} from "@/lib/auth/youth";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 import { sanityFetch } from "@/lib/sanity/client";
 
@@ -78,7 +83,10 @@ export default async function YouthMinistryPage() {
     redirect("/member/access-denied?area=youth-ministry");
   }
 
-  const documents = await sanityFetch<YouthDocument[]>(documentsQuery, {}, 10);
+  const [documents, canManageCurriculum] = await Promise.all([
+    sanityFetch<YouthDocument[]>(documentsQuery, {}, 10),
+    userCanDeleteYouthContent(supabase, user.id),
+  ]);
 
   const bySeries = documents.reduce<Record<string, YouthDocument[]>>(
     (acc, document) => {
@@ -92,14 +100,25 @@ export default async function YouthMinistryPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="flex items-center gap-2 font-serif text-3xl font-medium text-foreground">
-          <Users className="size-8 text-primary" aria-hidden />
-          Youth Ministry
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Access class documents and curriculum for our youth programs.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="flex items-center gap-2 font-serif text-3xl font-medium text-foreground">
+            <Users className="size-8 text-primary" aria-hidden />
+            Youth Ministry
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            Access class documents and curriculum for our youth programs.
+          </p>
+        </div>
+        {canManageCurriculum ? (
+          <Link
+            href="/member/youth/manage"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-secondary"
+          >
+            <Settings className="size-4" aria-hidden />
+            Manage curriculum
+          </Link>
+        ) : null}
       </div>
 
       <div className="grid gap-6">

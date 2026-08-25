@@ -7,7 +7,8 @@ export type AppRole =
   | AdminRole
   | "member"
   | "ministry_leader"
-  | "youth_ministry";
+  | "youth_ministry"
+  | "youth_minister";
 
 const ROLE_RANK: Record<AdminRole, number> = {
   staff: 1,

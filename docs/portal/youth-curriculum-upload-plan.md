@@ -50,6 +50,21 @@ npm run curriculum:upload -- stick-together
 
 Run the Supabase migration and deploy the Sanity schema before using the new field. The bulk uploader reads `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from `member-portal/.env.local`; it never prints either value. Use it only after every linked asset is present locally.
 
+## Correcting an accidental upload
+
+Assign the `youth_minister` role to the youth minister from Admin > Members. This
+role can view and bulk-delete youth curriculum without granting access to the
+rest of the admin panel. Upload/replace access remains with the existing admin
+roles. Members and parents with the `youth_ministry` role remain
+view/download-only.
+
+From the Youth Ministry page, an administrator or youth minister can open
+**Manage curriculum**, search or filter the list, select multiple records, and
+confirm **Delete selected**. The protected Supabase objects are deleted through
+the Storage API before the corresponding published/draft Sanity records are
+removed. The server mutation enforces the same role check; hiding the button is
+not the authorization boundary.
+
 For existing Sanity documents, run `npm run curriculum:migrate-legacy` from `sanity`. The migration is resumable: it reuses deterministic Supabase object paths, patches a document only after its upload succeeds, and leaves unsupported or oversized legacy assets unchanged for manual resolution. During the August 16, 2026 migration, one 190,513,333-byte `Find Your Way` handout exceeded the 50 MB project limit; it was rendered at 300 DPI, compressed to 3,056,258 bytes, checksum-verified after upload, and migrated separately. All 349 published youth curriculum documents now use protected Supabase paths.
 
 ## Verification plan
