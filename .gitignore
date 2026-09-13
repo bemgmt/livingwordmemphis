@@ -19,3 +19,7 @@ Thumbs.db
 
 # Locally generated document deliverables
 /output/pdf/
+
+# Local deployment link and Supabase CLI cache
+/.vercel/
+/supabase/.temp/

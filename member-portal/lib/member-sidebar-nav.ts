@@ -22,6 +22,11 @@ export type MemberNavItem = {
 
 export const memberSidebarNav: MemberNavItem[] = [
   {
+    href: "/member/youth/forms",
+    label: "Youth Forms",
+    icon: Users,
+  },
+  {
     href: "/member/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,

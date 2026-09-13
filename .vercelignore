@@ -1,0 +1,11 @@
+.git
+.vercel
+**/node_modules
+**/.next
+**/.env*
+**/test-results
+**/playwright-report
+**/.temp
+curriculum
+output
+Living_Word_Memphis_Nursery_Questionnaire_Waiver.pdf
