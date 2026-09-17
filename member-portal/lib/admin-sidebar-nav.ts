@@ -22,6 +22,12 @@ export type AdminNavItem = {
 
 export const adminSidebarNav: AdminNavItem[] = [
   {
+    href: "/admin/youth-forms",
+    label: "Youth Form Archives",
+    icon: FolderOpen,
+    minRole: "executive",
+  },
+  {
     href: "/admin/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { ChurchLogo } from "@/components/church-logo";
 import { MobileNav, SidebarNav } from "@/components/sidebar-nav";
+import { rolesGrantYouthAccess } from "@/lib/auth/youth";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 
 import { MemberSignOut } from "./sign-out-button";
@@ -22,11 +23,7 @@ export default async function MemberAreaLayout({
     .eq("user_id", user.id);
 
   const roleSet = new Set(roles?.map((r) => r.role) ?? []);
-  const isYouthMember =
-    roleSet.has("youth_ministry") ||
-    roleSet.has("staff") ||
-    roleSet.has("executive") ||
-    roleSet.has("apostle");
+  const isYouthMember = rolesGrantYouthAccess(roleSet);
 
   const footer = (
     <>

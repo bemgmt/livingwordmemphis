@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { rolesGrantYouthAccess } from "@/lib/auth/youth";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 import { sanityFetch } from "@/lib/sanity/client";
 import { Download } from "lucide-react";
@@ -60,18 +61,17 @@ export default async function MemberDashboard() {
   const roleSet = new Set(roles?.map((r) => r.role) ?? []);
   const isStaff = roles?.some((r) => STAFF_ROLES.has(r.role as string)) ?? false;
   
-  const isYouthMember =
-    roleSet.has("youth_ministry") || isStaff;
+  const isYouthMember = rolesGrantYouthAccess(roleSet);
 
-  let schoolSuppliesUrl: string | null = null;
+  let schoolSuppliesDocumentId: string | null = null;
   if (isYouthMember) {
-    const docs = await sanityFetch<{ fileUrl: string }[]>(
-      `*[_type == "youthMinistryDocument" && title match "ShopPrepList"] { "fileUrl": file.asset->url }`,
+    const docs = await sanityFetch<{ _id: string }[]>(
+      `*[_type == "youthMinistryDocument" && resourceType == "shopping-prep" && defined(protectedFile.storagePath)] { _id }`,
       {},
       60,
     );
     if (docs.length > 0) {
-      schoolSuppliesUrl = docs[0].fileUrl;
+      schoolSuppliesDocumentId = docs[0]._id;
     }
   }
 
@@ -205,9 +205,9 @@ export default async function MemberDashboard() {
               <BookOpen className="size-4 shrink-0" aria-hidden />
               Read the Bible
             </Link>
-            {isYouthMember && schoolSuppliesUrl && (
+            {isYouthMember && schoolSuppliesDocumentId && (
               <a
-                href={`${schoolSuppliesUrl}?dl=`}
+                href={`/api/youth/resources/${encodeURIComponent(schoolSuppliesDocumentId)}`}
                 className="inline-flex items-center gap-2 rounded-md border border-primary text-primary bg-primary/5 px-4 py-2 text-sm font-medium shadow-sm hover:bg-primary/10"
               >
                 <Download className="size-4 shrink-0" aria-hidden />

@@ -5,6 +5,15 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 const EXECUTIVE_ROLES = new Set(["executive", "apostle"]);
+const ASSIGNABLE_ROLES = new Set([
+  "member",
+  "ministry_leader",
+  "youth_ministry",
+  "youth_minister",
+  "staff",
+  "executive",
+  "apostle",
+]);
 
 async function requireExecutiveOrApostle(supabase: Awaited<ReturnType<typeof createClient>>) {
   const {
@@ -31,6 +40,14 @@ export async function updateMemberRole(
 
   if (!hasAccess) {
     return { ok: false, error: "Only executive or apostle roles can manage member roles." };
+  }
+
+  if (!ASSIGNABLE_ROLES.has(role)) {
+    return { ok: false, error: "That role cannot be assigned." };
+  }
+
+  if (user!.id === userId) {
+    return { ok: false, error: "Administrators cannot change their own roles." };
   }
 
   if (action === "add") {

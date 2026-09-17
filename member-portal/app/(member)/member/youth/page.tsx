@@ -1,9 +1,20 @@
 import { redirect } from "next/navigation";
-import { Download, Users } from "lucide-react";
+import {
+  BookOpen,
+  ChevronDown,
+  Download,
+  FolderOpen,
+  Settings,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 
+import {
+  userCanDeleteYouthContent,
+  userHasYouthAccess,
+} from "@/lib/auth/youth";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
-import { sanityFetch } from "@/lib/sanity/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { sanityWriteClient } from "@/lib/sanity/client";
 
 type YouthDocument = {
   _id: string;
@@ -11,107 +22,226 @@ type YouthDocument = {
   description: string | null;
   series: string | null;
   week: number | null;
-  fileUrl: string | null;
+  resourceType: string | null;
+  protectedFile: {
+    originalFilename: string | null;
+    storagePath: string | null;
+  } | null;
 };
 
-const documentsQuery = `*[_type == "youthMinistryDocument"] | order(series asc, week asc) {
+const documentsQuery = `*[
+  _type == "youthMinistryDocument" &&
+  !(_id in path("drafts.**"))
+] | order(series asc, week asc) {
   _id,
   title,
   description,
   series,
   week,
-  "fileUrl": file.asset->url
+  resourceType,
+  protectedFile { originalFilename, storagePath }
 }`;
+
+const resourceTypeLabels: Record<string, string> = {
+  overview: "Overview",
+  "shopping-prep": "Shopping / prep list",
+  "high-school-hacks": "High school hacks",
+  "middle-school-hacks": "Middle school hacks",
+  "lesson-outline": "Lesson outline",
+  "lesson-guide": "Lesson guide",
+  "discussion-questions": "Discussion questions",
+  handout: "Handout",
+};
+
+const resourceOrder = [
+  "overview",
+  "shopping-prep",
+  "high-school-hacks",
+  "middle-school-hacks",
+  "lesson-outline",
+  "lesson-guide",
+  "discussion-questions",
+  "handout",
+];
+
+function documentLabel(document: YouthDocument) {
+  return document.resourceType
+    ? (resourceTypeLabels[document.resourceType] ?? document.title)
+    : document.title;
+}
+
+function fileCountLabel(count: number) {
+  return `${count} ${count === 1 ? "file" : "files"}`;
+}
+
+function canonicalSeriesName(series: string | null) {
+  const name = series?.trim() || "Other";
+  return /^wonder(?:\s|\(|$)/i.test(name) ? "Wonder" : name;
+}
 
 export default async function YouthMinistryPage() {
   const { supabase, user } = await requireAuth();
 
-  const { data: roles } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", user.id);
-
-  const roleSet = new Set(roles?.map((r) => r.role) ?? []);
-  const isYouthMember =
-    roleSet.has("youth_ministry") ||
-    roleSet.has("staff") ||
-    roleSet.has("executive") ||
-    roleSet.has("apostle");
-
-  if (!isYouthMember) {
-    redirect("/member/dashboard");
+  if (!(await userHasYouthAccess(supabase, user.id))) {
+    redirect("/member/access-denied?area=youth-ministry");
   }
 
-  const documents = await sanityFetch<YouthDocument[]>(documentsQuery, {}, 10);
+  const [documents, canManageCurriculum] = await Promise.all([
+    sanityWriteClient.fetch<YouthDocument[]>(documentsQuery, {}, {
+      cache: "no-store",
+      perspective: "published",
+    }),
+    userCanDeleteYouthContent(supabase, user.id),
+  ]);
 
-  // Group by series
   const bySeries = documents.reduce<Record<string, YouthDocument[]>>(
-    (acc, doc) => {
-      const series = doc.series || "Other";
+    (acc, document) => {
+      const series = canonicalSeriesName(document.series);
       if (!acc[series]) acc[series] = [];
-      acc[series].push(doc);
+      acc[series].push(document);
       return acc;
     },
-    {}
+    {},
   );
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="flex items-center gap-2 font-serif text-3xl font-medium text-foreground">
-          <Users className="size-8 text-primary" aria-hidden />
-          Youth Ministry
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Access class documents and curriculum for our youth programs.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="flex items-center gap-2 font-serif text-3xl font-medium text-foreground">
+            <Users className="size-8 text-primary" aria-hidden />
+            Youth Ministry
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            Access class documents and curriculum for our youth programs.
+          </p>
+        </div>
+        {canManageCurriculum ? (
+          <Link
+            href="/member/youth/manage"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-secondary"
+          >
+            <Settings className="size-4" aria-hidden />
+            Manage curriculum
+          </Link>
+        ) : null}
       </div>
 
       <div className="grid gap-6">
-        {Object.entries(bySeries).map(([series, docs]) => (
-          <Card key={series}>
-            <CardHeader>
-              <CardTitle className="font-serif text-xl font-medium">
-                {series}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-4">
-                {docs.map((doc) => (
-                  <li
-                    key={doc._id}
-                    className="flex flex-col gap-2 rounded-lg border border-border p-4 transition-colors hover:bg-secondary/50 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {doc.title}
-                        {doc.week ? (
-                          <span className="ml-2 text-sm text-muted-foreground">
-                            (Week {doc.week})
-                          </span>
-                        ) : null}
-                      </p>
-                      {doc.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {doc.description}
-                        </p>
-                      )}
-                    </div>
-                    {doc.fileUrl && (
-                      <a
-                        href={`${doc.fileUrl}?dl=`}
-                        className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
-                      >
-                        <Download className="size-4" aria-hidden />
-                        Download
-                      </a>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
+        {Object.entries(bySeries)
+          .sort(([left], [right]) => left.localeCompare(right))
+          .map(([series, seriesDocuments]) => {
+            const folders = [
+              {
+                label: "Series resources",
+                documents: seriesDocuments.filter((document) => !document.week),
+              },
+              ...Array.from(
+                new Set(
+                  seriesDocuments.flatMap((document) =>
+                    document.week ? [document.week] : [],
+                  ),
+                ),
+              )
+                .sort((a, b) => a - b)
+                .map((week) => ({
+                  label: `Week ${week}`,
+                  documents: seriesDocuments
+                    .filter((document) => document.week === week)
+                    .sort(
+                      (a, b) =>
+                        resourceOrder.indexOf(a.resourceType ?? "") -
+                        resourceOrder.indexOf(b.resourceType ?? ""),
+                    ),
+                })),
+            ].filter((folder) => folder.documents.length > 0);
+
+            return (
+              <details
+                key={series}
+                className="group/series overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-sm"
+              >
+                <summary className="flex min-h-16 cursor-pointer list-none items-center gap-3 px-5 py-4 transition-colors hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+                  <BookOpen
+                    className="size-5 shrink-0 text-primary"
+                    aria-hidden
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-serif text-xl font-medium">
+                      {series}
+                    </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">
+                      {fileCountLabel(seriesDocuments.length)} across{" "}
+                      {folders.length}{" "}
+                      {folders.length === 1 ? "folder" : "folders"}
+                    </span>
+                  </span>
+                  <ChevronDown
+                    className="size-5 shrink-0 text-muted-foreground transition-transform group-open/series:rotate-180"
+                    aria-hidden
+                  />
+                </summary>
+                <div className="space-y-3 border-t border-border p-3 sm:p-5">
+                  {folders.map((folder) => (
+                    <details
+                      key={folder.label}
+                      className="group/folder overflow-hidden rounded-lg border border-border bg-background"
+                    >
+                      <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+                        <FolderOpen
+                          className="size-5 shrink-0 text-primary"
+                          aria-hidden
+                        />
+                        <span className="min-w-0 flex-1 font-medium text-foreground">
+                          {folder.label}
+                        </span>
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {fileCountLabel(folder.documents.length)}
+                        </span>
+                        <ChevronDown
+                          className="size-4 shrink-0 text-muted-foreground transition-transform group-open/folder:rotate-180"
+                          aria-hidden
+                        />
+                      </summary>
+                      <ul className="space-y-2 border-t border-border bg-secondary/20 p-3">
+                        {folder.documents.map((document) => (
+                          <li
+                            key={document._id}
+                            className="flex flex-col gap-3 rounded-lg border border-border bg-background p-3 sm:flex-row sm:items-center sm:justify-between"
+                          >
+                            <div className="min-w-0">
+                              <p className="font-medium text-foreground">
+                                {documentLabel(document)}
+                              </p>
+                              {document.description && (
+                                <p className="text-sm text-muted-foreground">
+                                  {document.description}
+                                </p>
+                              )}
+                            </div>
+                            {document.protectedFile?.storagePath && (
+                              <a
+                                href={`/api/youth/resources/${encodeURIComponent(document._id)}`}
+                                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
+                              >
+                                <Download className="size-4" aria-hidden />
+                                Download
+                              </a>
+                            )}
+                            {!document.protectedFile?.storagePath && (
+                              <span className="text-xs text-muted-foreground">
+                                Awaiting secure migration
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ))}
+                </div>
+              </details>
+            );
+          })}
 
         {Object.keys(bySeries).length === 0 && (
           <p className="text-muted-foreground">No documents uploaded yet.</p>

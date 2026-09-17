@@ -1,0 +1,22 @@
+{
+  "series": "Wonder",
+  "files": [
+    { "path": "series-resources/Topic_ WONDER.docx", "title": "Series overview", "resourceType": "overview" },
+    { "path": "series-resources/ShopPrepList_Wonder_GrowStudents.docx", "title": "Shopping & prep list", "resourceType": "shopping-prep" },
+    { "path": "series-resources/HighSchoolHacks_Wonder_GrowStudents.pdf", "title": "High school hacks", "resourceType": "high-school-hacks" },
+    { "path": "series-resources/MiddleSchoolHacks_Wonder_GrowStudents.pdf", "title": "Middle school hacks", "resourceType": "middle-school-hacks" },
+    { "path": "week-01/Outline1_Wonder_GrowStudents.pdf", "title": "Lesson outline", "resourceType": "lesson-outline" },
+    { "path": "week-01/Lesson1_Wonder_GrowStudents.pdf", "title": "Lesson guide", "resourceType": "lesson-guide" },
+    { "path": "week-01/Discussion1_Wonder_GrowStudents.pdf", "title": "Discussion questions", "resourceType": "discussion-questions" },
+    { "path": "week-01/Handout1_Wonder_GrowStudents.pdf", "title": "Handout", "resourceType": "handout" },
+    { "path": "week-02/Outline2_Wonder_GrowStudents.pdf", "title": "Lesson outline", "resourceType": "lesson-outline" },
+    { "path": "week-02/Lesson2_Wonder_GrowStudents.pdf", "title": "Lesson guide", "resourceType": "lesson-guide" },
+    { "path": "week-03/Outline3_Wonder_GrowStudents.pdf", "title": "Lesson outline", "resourceType": "lesson-outline" },
+    { "path": "week-03/Lesson3_Wonder_GrowStudents.pdf", "title": "Lesson guide", "resourceType": "lesson-guide" },
+    { "path": "week-03/Discussion3_Wonder_GrowStudents.pdf", "title": "Discussion questions", "resourceType": "discussion-questions" },
+    { "path": "week-04/Outline4_Wonder_GrowStudents.pdf", "title": "Lesson outline", "resourceType": "lesson-outline" },
+    { "path": "week-04/Lesson4_Wonder_GrowStudents.pdf", "title": "Lesson guide", "resourceType": "lesson-guide" },
+    { "path": "week-04/Discussion4_Wonder_GrowStudents.pdf", "title": "Discussion questions", "resourceType": "discussion-questions" },
+    { "path": "week-04/Handout4_Wonder_GrowStudents.pdf", "title": "Handout", "resourceType": "handout" }
+  ]
+}

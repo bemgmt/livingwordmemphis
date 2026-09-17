@@ -84,7 +84,7 @@ export const structure: StructureResolver = (S) =>
                 "Study assistant knowledge",
               ),
               S.documentTypeListItem("youthMinistryDocument").title(
-                "Youth Ministry Docs",
+                "Youth curriculum uploader",
               ),
             ]),
         ),

@@ -3,7 +3,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 const STAFF_ROLES = ["staff", "executive", "apostle"] as const;
 
 export type AdminRole = "staff" | "executive" | "apostle";
-export type AppRole = AdminRole | "member" | "ministry_leader";
+export type AppRole =
+  | AdminRole
+  | "member"
+  | "ministry_leader"
+  | "youth_ministry"
+  | "youth_minister";
 
 const ROLE_RANK: Record<AdminRole, number> = {
   staff: 1,

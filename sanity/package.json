@@ -7,7 +7,9 @@
     "start": "sanity start",
     "build": "sanity build",
     "deploy": "sanity deploy",
-    "schema:deploy": "sanity schema deploy"
+    "schema:deploy": "sanity schema deploy",
+    "curriculum:upload": "sanity exec upload-curriculum.ts --with-user-token --",
+    "curriculum:migrate-legacy": "sanity exec migrate-legacy-youth-assets.ts --with-user-token"
   },
   "dependencies": {
     "@sanity/icons": "^3.7.4",

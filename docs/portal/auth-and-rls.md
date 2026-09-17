@@ -12,6 +12,7 @@ Titles on an org chart (Apostle, Executive, Minister, Staff) map to **one or mor
 |------|---------|
 | `member` | Default for every authenticated church member. Portal self-service. |
 | `ministry_leader` | Scoped leadership (groups/serving in assigned areas). No automatic global PII. |
+| `youth_ministry` | Permission to open and download protected youth curriculum. Assign to participating youth accounts and parent/guardian accounts. |
 | `staff` | Day-to-day operations: directory, prayer triage, announcements queue, member support. |
 | `executive` | Aggregated dashboards, strategic reports; **default-deny** for individual PII unless policy allows. |
 | `apostle` | Highest-trust content and escalation (sermon notes pipeline, sensitive overrides per policy). |
@@ -45,11 +46,22 @@ At runtime:
 |----------|--------|-----------------|-------|-----------|---------|
 | Own `profiles` row | read/update (non-privileged fields) | same | same | same | same |
 | Other `profiles` | deny | deny (until scoped) | allow read (operational) | default deny individual; aggregates OK | policy-based |
-| `user_roles` | read self | read self | read all; grant/revoke | read all; grant/revoke | read all; grant/revoke |
+| `user_roles` | read self | read self | read all; cannot grant/revoke | read all; grant/revoke | read all; grant/revoke |
 | `prayer_requests` | insert; read own | see prayer doc | triage per visibility | aggregates + policy | full per policy |
 | `personal_giving_notes` | CRUD own | deny | deny (unless support impersonation policy) | aggregates only | — |
 | Future: announcements drafts | — | scoped | yes | yes | publish approval |
 | Future: AI KB drafts | deny | deny | propose | approve | approve |
+
+### Youth curriculum access
+
+| User class | View/download | Upload/manage |
+|------------|---------------|---------------|
+| `member` | deny | deny |
+| `ministry_leader` | deny | deny |
+| `youth_ministry` | allow | deny |
+| `staff`, `executive`, `apostle` | allow | allow |
+
+Role mutations are restricted to `executive` and `apostle`, and administrators cannot change their own role rows through the Data API.
 
 ## RLS implementation notes
 
