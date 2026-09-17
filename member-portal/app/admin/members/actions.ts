@@ -10,6 +10,7 @@ const ASSIGNABLE_ROLES = new Set([
   "ministry_leader",
   "youth_ministry",
   "youth_minister",
+  "sunday_school_teacher",
   "staff",
   "executive",
   "apostle",

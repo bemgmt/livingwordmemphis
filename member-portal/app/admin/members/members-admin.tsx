@@ -38,6 +38,7 @@ const ALL_ROLES = [
   { value: "ministry_leader", label: "Ministry leader" },
   { value: "youth_ministry", label: "Youth ministry access" },
   { value: "youth_minister", label: "Youth minister" },
+  { value: "sunday_school_teacher", label: "Sunday school teacher" },
   { value: "staff", label: "Leadership" },
   { value: "executive", label: "Executive team" },
   { value: "apostle", label: "Apostle" },

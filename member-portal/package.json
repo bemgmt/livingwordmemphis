@@ -12,7 +12,8 @@
     "start": "next start",
     "lint": "next lint",
     "test:e2e": "playwright test",
-    "test:youth-forms": "tsx --test tests/youth-forms.test.ts"
+    "test:youth-forms": "tsx --test tests/youth-forms.test.ts",
+    "test:sunday-school": "tsx --test tests/sunday-school.test.ts"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "1.1.1",

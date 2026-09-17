@@ -18,6 +18,7 @@ const STRUCTURED_TYPES = new Set([
   "approvedBible",
   "studyKnowledgeBase",
   "youthMinistryDocument",
+  "sundaySchoolLesson",
 ]);
 
 export const structure: StructureResolver = (S) =>
@@ -86,6 +87,7 @@ export const structure: StructureResolver = (S) =>
               S.documentTypeListItem("youthMinistryDocument").title(
                 "Youth curriculum uploader",
               ),
+              S.documentTypeListItem("sundaySchoolLesson").title("Sunday school curriculum"),
             ]),
         ),
 

@@ -77,4 +77,9 @@ export const memberSidebarNav: MemberNavItem[] = [
     icon: Users,
     youthMinistryOnly: true,
   },
+  {
+    href: "/member/sunday-school",
+    label: "Sunday School",
+    icon: BookOpen,
+  },
 ];
