@@ -7,6 +7,10 @@ const configDir = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig: NextConfig = {
   // Monorepo: repo root also has package-lock.json; pin tracing to this app.
   outputFileTracingRoot: configDir,
+  outputFileTracingIncludes: {
+    "/member/youth/forms/**/*": ["./assets/fonts/NotoSans-Regular.ttf"],
+    "/admin/youth-forms/**/*": ["./assets/fonts/NotoSans-Regular.ttf"],
+  },
   experimental: {
     externalDir: true,
   },
