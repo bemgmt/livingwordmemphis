@@ -25,7 +25,7 @@ function readableSize(size?: number) {
 }
 
 export function YouthCurriculumFileInput(
-  props: ObjectInputProps<ProtectedFileValue>,
+  props: ObjectInputProps<ProtectedFileValue> & { uploadUrl?: string },
 ) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -36,7 +36,7 @@ export function YouthCurriculumFileInput(
     setError(null);
 
     try {
-      const initResponse = await fetch("/api/admin/youth-assets/upload-url", {
+      const initResponse = await fetch(props.uploadUrl ?? "/api/admin/youth-assets/upload-url", {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
@@ -54,7 +54,7 @@ export function YouthCurriculumFileInput(
 
       const formData = new FormData();
       formData.append("cacheControl", "3600");
-      formData.append("", file);
+      formData.append("", new Blob([file], { type: uploadInit.contentType }), file.name);
 
       const uploadResponse = await fetch(uploadInit.signedUrl, {
         method: "PUT",
@@ -154,5 +154,16 @@ export function YouthCurriculumFileInput(
         </p>
       ) : null}
     </div>
+  );
+}
+
+export function SundaySchoolCurriculumFileInput(
+  props: ObjectInputProps<ProtectedFileValue>,
+) {
+  return (
+    <YouthCurriculumFileInput
+      {...props}
+      uploadUrl="/api/admin/sunday-school-assets/upload-url"
+    />
   );
 }

@@ -5,8 +5,16 @@ member menu. The library starts in October 2026 and groups files by month, class
 (Adult, High School, Middle School, Elementary), and Sunday. Empty weeks remain
 visible so teachers can see the schedule before uploading materials.
 
-Teachers use `/member/sunday-school/upload` to upload PDF, Word, PowerPoint, or MP4
-files up to 50 MB. The `sunday_school_teacher`, `staff`, `executive`, and `apostle`
+Staff with existing Studio access can upload directly at `/admin/studio` under
+**Member portal → Sunday school curriculum**, using the same file chooser as Youth
+Curriculum. Enter the lesson details, choose a file, wait for the upload to finish,
+then publish. Storage paths and other internal file metadata are filled automatically
+and hidden. Studio requires both existing Studio access and a signed-in staff
+member-portal session; the Sunday school teacher role does not grant admin access.
+
+Teachers without Studio access use `/member/sunday-school/upload`. Both workflows
+accept PDF, Word, PowerPoint, or MP4 files up to 50 MB. The
+`sunday_school_teacher`, `staff`, `executive`, and `apostle`
 roles can upload. Executive/apostle administrators assign the Sunday school teacher
 role in `/admin/members`. Ordinary members can download but cannot upload.
 
@@ -14,7 +22,7 @@ Files live in the private Supabase `sunday-school-curriculum` bucket. Metadata l
 in Sanity `sundaySchoolLesson` documents. The upload publishes metadata only after
 Storage confirms the file exists and matches its expected size and content type.
 If publication fails, keep the upload page open and choose **Retry publishing**.
-Embedded Studio provides metadata editing under Sunday school curriculum.
+Embedded Studio supports both direct file uploads and metadata editing.
 
 ## Deployment
 
