@@ -67,9 +67,9 @@ test("unauthenticated download signs only a published lesson file", async () => 
       assert.match(query, /!\(_id in path\("drafts\.\*\*"\)\)/);
       assert.equal(options.perspective, "published");
       assert.equal(params.id, "lesson");
-      return file;
+      return file ? { month: file.month || "2026-10", protectedFile: file } : null;
     } } },
-    "@/lib/sunday-school": { SUNDAY_SCHOOL_BUCKET: "sunday-school-curriculum" },
+    "@/lib/sunday-school": { SUNDAY_SCHOOL_BUCKET: "sunday-school-curriculum", schoolMonthIsReleased: month => month === "2026-10" },
   });
   const request = id => GET(new Request("https://example.com"), { params: Promise.resolve({ documentId: id }) });
   const result = await request("lesson");
@@ -80,6 +80,9 @@ test("unauthenticated download signs only a published lesson file", async () => 
   assert.equal((await request("../lesson")).status, 404);
   assert.equal(fetched, 1);
   assert.equal(signed, 1);
+  file = { storagePath: "teacher/lesson.pdf", originalFilename: "lesson.pdf", month: "2026-11" };
+  assert.equal((await request("lesson")).status, 404);
+  assert.equal(signed, 1);
   file = null;
   assert.equal((await request("lesson")).status, 404);
   file = { storagePath: "../private.pdf" };
@@ -88,4 +91,20 @@ test("unauthenticated download signs only a published lesson file", async () => 
   file = { storagePath: "teacher/lesson.pdf", originalFilename: "lesson.pdf" };
   storageError = true;
   assert.equal((await request("lesson")).status, 503);
+});
+
+test("months unlock during the previous month's final seven days in Memphis", async () => {
+  const { schoolMonths, schoolMonthIsReleased } = await loadModule("lib/sunday-school.ts", {});
+  const released = (month, time) => schoolMonthIsReleased(month, new Date(time));
+  assert.equal(released("2026-11", "2026-10-25T04:59:59Z"), false);
+  assert.equal(released("2026-11", "2026-10-25T05:00:00Z"), true);
+  assert.equal(released("2026-12", "2026-11-24T05:59:59Z"), false);
+  assert.equal(released("2026-12", "2026-11-24T06:00:00Z"), true);
+  assert.equal(released("2027-01", "2026-12-25T06:00:00Z"), true);
+  assert.equal(released("2027-03", "2027-02-22T06:00:00Z"), true);
+  assert.equal(released("2028-03", "2028-02-23T06:00:00Z"), true);
+  assert.equal(released("bad", "2026-10-02T12:00:00Z"), false);
+  assert.deepEqual(Array.from(schoolMonths(["2026-10", "2026-11", "2026-12"], new Date("2026-10-02T12:00:00Z"))), ["2026-10"]);
+  assert.deepEqual(Array.from(schoolMonths(["2026-10", "2026-11"], new Date("2026-10-25T05:00:00Z"))), ["2026-11", "2026-10"]);
+  assert.deepEqual(Array.from(schoolMonths([], new Date("2026-12-25T06:00:00Z"))), []);
 });

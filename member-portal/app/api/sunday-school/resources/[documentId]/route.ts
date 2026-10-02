@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { sanityWriteClient } from "@/lib/sanity/client";
-import { SUNDAY_SCHOOL_BUCKET } from "@/lib/sunday-school";
+import { SUNDAY_SCHOOL_BUCKET, schoolMonthIsReleased } from "@/lib/sunday-school";
 
 export const dynamic = "force-dynamic";
 const headers = { "Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer" };
@@ -8,10 +8,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ doc
   const { documentId } = await params;
   if (!/^[a-zA-Z0-9_-][a-zA-Z0-9._-]{0,199}$/.test(documentId) || documentId.startsWith("drafts.")) return Response.json({ error: "Not found." }, { status: 404, headers });
   try {
-    const file = await sanityWriteClient.fetch<{ storagePath: string; originalFilename: string } | null>(
-      `*[_type == "sundaySchoolLesson" && _id == $id && !(_id in path("drafts.**"))][0].protectedFile`,
+    const lesson = await sanityWriteClient.fetch<{ month: string; protectedFile: { storagePath: string; originalFilename: string } } | null>(
+      `*[_type == "sundaySchoolLesson" && _id == $id && !(_id in path("drafts.**"))][0]{month,protectedFile{storagePath,originalFilename}}`,
       { id: documentId }, { cache: "no-store", perspective: "published" },
     );
+    if (!lesson || !schoolMonthIsReleased(lesson.month)) return Response.json({ error: "Not found." }, { status: 404, headers });
+    const file = lesson.protectedFile;
     if (!file?.storagePath || file.storagePath.includes("..") || file.storagePath.startsWith("/")) return Response.json({ error: "Not found." }, { status: 404, headers });
     // Sign only the file referenced by a published lesson; uploads and drafts stay protected.
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {

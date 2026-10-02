@@ -29,9 +29,21 @@ export function monthLabel(month: string) {
 export function lessonDateLabel(date: string) {
   return new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
 }
-// Only published lesson months supplied by the curriculum query are displayed.
-export function schoolMonths(documentMonths: string[]) {
-  return [...new Set(documentMonths.filter(validSchoolMonth))].sort().reverse();
+// Release at midnight Memphis time on the first of the previous month's last seven days.
+export function schoolMonthIsReleased(month: string, now = new Date()) {
+  if (!validSchoolMonth(month)) return false;
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric", month: "2-digit", day: "2-digit", timeZone: "America/Chicago",
+  }).formatToParts(now);
+  const today = ["year", "month", "day"].map(type => parts.find(part => part.type === type)!.value).join("-");
+  const previousMonthEnd = new Date(`${month}-01T12:00:00Z`);
+  previousMonthEnd.setUTCDate(0);
+  previousMonthEnd.setUTCDate(previousMonthEnd.getUTCDate() - 6);
+  return today >= previousMonthEnd.toISOString().slice(0, 10);
+}
+// Only released months with published lessons supplied by the curriculum query are displayed.
+export function schoolMonths(documentMonths: string[], now = new Date()) {
+  return [...new Set(documentMonths.filter(month => schoolMonthIsReleased(month, now)))].sort().reverse();
 }
 export type LessonInput = { title: string; month: string; classGroup: string; lessonDate: string; description: string };
 export function validateLesson(input: unknown): LessonInput {
