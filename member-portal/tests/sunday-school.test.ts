@@ -10,9 +10,9 @@ test("Published months appear automatically without empty calendar months", () =
   assert.deepEqual(sundayDates("2026-10"), ["2026-10-04", "2026-10-11", "2026-10-18", "2026-10-25"]);
   assert.equal(sundayDates("2026-11").length, 5);
   assert.deepEqual(schoolMonths([]), []);
-  assert.deepEqual(schoolMonths(["2026-10", "2026-11"]), ["2026-11", "2026-10"]);
-  assert.deepEqual(schoolMonths(["2026-10", "2026-12"]), ["2026-12", "2026-10"]);
-  assert.deepEqual(schoolMonths(["2027-02", "bad", "2026-10", "2026-10"]), ["2027-02", "2026-10"]);
+  assert.deepEqual(schoolMonths(["2026-10", "2026-11"], new Date("2026-10-25T05:00:00Z")), ["2026-11", "2026-10"]);
+  assert.deepEqual(schoolMonths(["2026-10", "2026-12"], new Date("2026-11-24T06:00:00Z")), ["2026-12", "2026-10"]);
+  assert.deepEqual(schoolMonths(["2027-02", "bad", "2026-10", "2026-10"], new Date("2027-01-25T06:00:00Z")), ["2027-02", "2026-10"]);
 });
 test("lesson input rejects wrong classes, months and mismatched or non-Sunday dates", () => {
   const input = { title: "Lesson one", month: "2026-10", classGroup: "adult", lessonDate: "2026-10-04", description: "" };
