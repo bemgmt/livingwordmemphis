@@ -5,14 +5,14 @@ import { SCHOOL_CLASSES, validSchoolMonth, sundayDates } from "../../../member-p
 
 export const sundaySchoolLesson = defineType({
   name: "sundaySchoolLesson", title: "Sunday School Lesson", type: "document", icon: BookIcon,
-  description: "Choose the month, class, and Sunday, upload the curriculum file here, then publish to the member portal.",
+  description: "Choose the month, class, and Sunday, upload the curriculum file here, then publish to Sunday School.",
   fields: [
     defineField({ name: "title", title: "Lesson title", type: "string", validation: rule => rule.required().max(160) }),
     defineField({ name: "month", title: "Month (YYYY-MM)", type: "string", initialValue: "2026-10", validation: rule => rule.required().custom(value => typeof value === "string" && validSchoolMonth(value) ? true : "Choose a month from October 2026 onward (YYYY-MM).") }),
     defineField({ name: "classGroup", title: "Class", type: "string", options: { list: SCHOOL_CLASSES.map(c => ({ title: c.label, value: c.value })) }, validation: rule => rule.required() }),
     defineField({ name: "lessonDate", title: "Sunday lesson date", type: "date", validation: rule => rule.required().custom((value, context) => typeof context.document?.month === "string" && sundayDates(context.document.month).includes(value ?? "") ? true : "Choose a Sunday in the selected month.") }),
     defineField({ name: "description", title: "Description", type: "text", rows: 3, validation: rule => rule.max(2000) }),
-    defineField({ name: "protectedFile", title: "Curriculum file", type: "object", description: "Choose a file, wait for the upload to finish, then publish. Signed-in members can download it from Sunday School.", components: { input: SundaySchoolCurriculumFileInput }, fields: [
+    defineField({ name: "protectedFile", title: "Curriculum file", type: "object", description: "Choose a file, wait for the upload to finish, then publish. Anyone can download published curriculum from Sunday School.", components: { input: SundaySchoolCurriculumFileInput }, fields: [
       defineField({ name: "storagePath", type: "string", readOnly: true }),
       defineField({ name: "originalFilename", type: "string", readOnly: true }),
       defineField({ name: "contentType", type: "string", readOnly: true }),

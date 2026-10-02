@@ -5,12 +5,14 @@ import { PGlite } from "@electric-sql/pglite";
 import { SCHOOL_CLASSES, schoolMonths, sundayDates, validateLesson, rolesCanUploadSundaySchool } from "../lib/sunday-school";
 import { readSchoolTicket, signSchoolTicket, type SchoolUploadTicket } from "../lib/sunday-school-ticket";
 
-test("October starts with four classes and correct Sunday weeks; months roll forward without losing archives", () => {
+test("Published months appear automatically without empty calendar months", () => {
   assert.deepEqual(SCHOOL_CLASSES.map(c => c.label), ["Adult", "High School", "Middle School", "Elementary"]);
   assert.deepEqual(sundayDates("2026-10"), ["2026-10-04", "2026-10-11", "2026-10-18", "2026-10-25"]);
   assert.equal(sundayDates("2026-11").length, 5);
-  assert.deepEqual(schoolMonths([], new Date("2026-09-16T12:00:00Z")), ["2026-10"]);
-  assert.deepEqual(schoolMonths(["2027-02", "bad"], new Date("2027-01-15T12:00:00Z")), ["2027-02", "2027-01", "2026-12", "2026-11", "2026-10"]);
+  assert.deepEqual(schoolMonths([]), []);
+  assert.deepEqual(schoolMonths(["2026-10", "2026-11"]), ["2026-11", "2026-10"]);
+  assert.deepEqual(schoolMonths(["2026-10", "2026-12"]), ["2026-12", "2026-10"]);
+  assert.deepEqual(schoolMonths(["2027-02", "bad", "2026-10", "2026-10"]), ["2027-02", "2026-10"]);
 });
 test("lesson input rejects wrong classes, months and mismatched or non-Sunday dates", () => {
   const input = { title: "Lesson one", month: "2026-10", classGroup: "adult", lessonDate: "2026-10-04", description: "" };

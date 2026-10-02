@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { BookOpen, ChevronDown, Download, FolderOpen } from "lucide-react";
 import { sundaySchoolSession } from "@/lib/auth/sunday-school";
 import { sanityWriteClient } from "@/lib/sanity/client";
@@ -8,10 +7,9 @@ import { SCHOOL_CLASSES, schoolMonths, monthLabel, sundayDates, lessonDateLabel,
 export const dynamic = "force-dynamic";
 export default async function SundaySchoolPage() {
   const session = await sundaySchoolSession();
-  if (!session) redirect("/auth/login?next=/member/sunday-school");
   let lessons: SchoolLesson[];
   try {
-    lessons = await sanityWriteClient.fetch<SchoolLesson[]>(`*[_type == "sundaySchoolLesson" && !(_id in path("drafts.**"))] | order(lessonDate asc, title asc) {_id,title,month,classGroup,lessonDate,description,protectedFile{originalFilename}}`, {}, { cache: "no-store", perspective: "published" });
+    lessons = await sanityWriteClient.fetch<SchoolLesson[]>(`*[_type == "sundaySchoolLesson" && !(_id in path("drafts.**")) && defined(protectedFile.storagePath)] | order(lessonDate asc, title asc) {_id,title,month,classGroup,lessonDate,description,protectedFile{originalFilename}}`, {}, { cache: "no-store", perspective: "published" });
   } catch {
     return <div className="rounded-xl border bg-card p-6"><h1 className="font-serif text-3xl">Sunday School</h1><p role="alert" className="mt-3">The curriculum list is temporarily unavailable. Please refresh in a moment.</p></div>;
   }
@@ -19,9 +17,10 @@ export default async function SundaySchoolPage() {
   return <div className="mx-auto max-w-5xl space-y-6">
     <header className="flex flex-wrap items-start justify-between gap-4">
       <div><h1 className="flex items-center gap-3 font-serif text-3xl"><BookOpen className="size-8 text-primary" aria-hidden />Sunday School</h1><p className="mt-2 text-muted-foreground">Weekly lessons for every age, organized by month and class.</p></div>
-      {session.canUpload && <Link href="/member/sunday-school/upload" className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">Upload curriculum</Link>}
+      {session?.canUpload && <Link href="/member/sunday-school/upload" className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">Upload curriculum</Link>}
     </header>
     <p className="text-sm text-muted-foreground">Curriculum begins October 2026. Choose a month, class, and Sunday to download available materials.</p>
+    {months.length === 0 && <p className="rounded-xl border bg-card p-6 text-muted-foreground">No published curriculum is available yet.</p>}
     {months.map(month => <details key={month} className="group rounded-xl border bg-card" open={months.length === 1 ? true : undefined}>
       <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 p-5"><FolderOpen className="size-5 shrink-0 text-primary" aria-hidden /><h2 className="flex-1 text-lg font-semibold">{monthLabel(month)}</h2><ChevronDown className="size-4" aria-hidden /></summary>
       <div className="space-y-3 border-t p-3 sm:p-5">{SCHOOL_CLASSES.map(group => {
