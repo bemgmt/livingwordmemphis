@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>School of Ministry · Wireframes</title>
+  <style>
+    body {
+      margin: 0;
+      background: #faf8f4;
+      color: #20252d;
+      font: 16px system-ui;
+    }
+    header,
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 24px;
+    }
+    nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    a {
+      color: #16743b;
+    }
+    section {
+      display: none;
+    }
+    section:target {
+      display: block;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    .card {
+      padding: 24px;
+      border: 1px solid #ddd6cb;
+      border-radius: 14px;
+      background: #fffefa;
+      margin: 18px 0;
+    }
+    h1,
+    h2 {
+      font-family: Georgia, serif;
+    }
+    button,
+    .button {
+      display: inline-block;
+      padding: 12px 18px;
+      background: #16743b;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+    label {
+      display: block;
+      margin: 16px 0;
+    }
+    input,
+    select,
+    textarea {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+    }
+    small {
+      color: #555;
+    }
+    footer {
+      padding: 20px;
+    }
+    @media (max-width: 650px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      header,
+      main {
+        padding: 16px;
+      }
+    }
+  </style>
+  <header>
+    <small>LIVING WORD MEMPHIS · 2027</small>
+    <h1>School of Ministry</h1>
+    <nav aria-label="Wireframe pages">
+      <a href="#enrollment">Enrollment</a
+      ><a href="#dashboard">Student dashboard</a><a href="#lesson">Lesson</a
+      ><a href="#assignment">Assignment submission</a
+      ><a href="#grading">Instructor grading</a>
+    </nav>
+    <p>
+      Linked desktop and mobile wireframes. Resize to 390 px for the stacked
+      mobile layout. Illustrative content; no live student records.
+    </p>
+  </header>
+  <main>
+    <section id="enrollment">
+      <h2>Request enrollment</h2>
+      <div class="card">
+        <label
+          >Primary school<select>
+            <option>School of the Prophets</option>
+            <option>School of the Apostles</option>
+            <option>School of the Evangelist</option>
+            <option>School of the Pastor</option>
+            <option>School of the Teacher</option>
+          </select></label
+        >
+        <p>Tuesdays, 6:30–9:00 PM · 3–4 hours of weekly independent study</p>
+        <p>Spring $350 · Fall $325 · Approval required</p>
+        <label
+          ><input type="checkbox" style="width: auto" /> I have reviewed the
+          program expectations.</label
+        ><a class="button" href="#dashboard">Request enrollment →</a>
+      </div>
+    </section>
+    <section id="dashboard">
+      <p>2027 / School of the Prophets</p>
+      <h2>Welcome to your school</h2>
+      <div class="grid">
+        <div>
+          <article class="card">
+            <small>NEXT CLASS</small>
+            <h2>Tuesday, January 19</h2>
+            <p>6:30–9:00 PM · Week 1 · Chapters 1–2</p>
+            <a class="button" href="#lesson">Continue learning</a>
+          </article>
+          <article class="card">
+            <h2>Upcoming work</h2>
+            <a href="#assignment">Independent study assignment</a>
+          </article>
+        </div>
+        <aside>
+          <article class="card">
+            <h2>Announcements</h2>
+            <p>Orientation · January 12</p>
+          </article>
+          <article class="card">
+            <h2>My progress</h2>
+            <p>Reading · Graded work · Attendance</p>
+          </article>
+          <article class="card">
+            <h2>Spring tuition</h2>
+            <p>$350 due January 9</p>
+          </article>
+        </aside>
+      </div>
+    </section>
+    <section id="lesson">
+      <a href="#dashboard">← My school</a>
+      <h2>Week 1 · Chapters 1–2</h2>
+      <article class="card">
+        <h3>Learning objectives</h3>
+        <p>Instructor-authored objectives appear here.</p>
+        <h3>Lesson materials</h3>
+        <p>Secure downloads with clear filenames.</p>
+        <h3>Practical ministry</h3>
+        <p>Instructor-authored exercise.</p>
+        <h3>Independent study</h3>
+        <p>Recommended: 3–4 hours this teaching week.</p>
+        <a class="button" href="#assignment">Open assignment</a>
+      </article>
+    </section>
+    <section id="assignment">
+      <a href="#lesson">← Lesson</a>
+      <h2>Assignment submission</h2>
+      <article class="card">
+        <p>Instructions, points possible, and Chicago-time deadline.</p>
+        <label>Your response<textarea rows="6"></textarea></label
+        ><label>Attach a file<input type="file" /></label>
+        <p role="status">Draft not yet saved</p>
+        <button type="button">Save draft</button>
+        <button type="button">Submit assignment</button>
+        <p>Submitted work becomes read-only. Late work is labeled.</p>
+      </article>
+    </section>
+    <section id="grading">
+      <h2>Teaching / Review submission</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Student response</h3>
+          <p>Submitted text and private attachments.</p>
+          <small>Submission date · On time / Late</small>
+        </article>
+        <article class="card">
+          <label>Points earned<input type="number" min="0" /></label
+          ><label>Feedback<textarea rows="4"></textarea></label
+          ><label
+            ><input type="checkbox" style="width: auto" /> Release result to
+            student</label
+          ><button type="button">Save grade</button>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer>
+    Interaction layout only. Uploading, grading, and access behavior require
+    application verification.
+  </footer>
+  <script>
+    if (!location.hash) location.hash = "dashboard";
+  </script>
+</html>

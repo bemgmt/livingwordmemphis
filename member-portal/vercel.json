@@ -1,3 +1,4 @@
 {
-  "installCommand": "npm install && npm install --prefix ../sanity"
+  "installCommand": "npm install && npm install --prefix ../sanity",
+  "crons": [{ "path": "/api/ministry/finalize", "schedule": "* * * * *" }]
 }

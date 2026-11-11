@@ -21,6 +21,7 @@ export type MemberNavItem = {
 };
 
 export const memberSidebarNav: MemberNavItem[] = [
+  { href: "/member/school-of-ministry", label: "School of Ministry", icon: GraduationCap },
   {
     href: "/member/youth/forms",
     label: "Youth Forms",

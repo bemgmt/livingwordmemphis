@@ -9,6 +9,7 @@ import { siteSettings } from "./documents/siteSettings";
 import { studyKnowledgeBase } from "./documents/studyKnowledgeBase";
 import { youthMinistryDocument } from "./documents/youthMinistryDocument";
 import { sundaySchoolLesson } from "./documents/sundaySchoolLesson";
+import { ministryProgram } from "./documents/ministryProgram";
 import { blockContent } from "./objects/blockContent";
 import { seo } from "./objects/seo";
 
@@ -26,4 +27,5 @@ export const schemaTypes = [
   studyKnowledgeBase,
   youthMinistryDocument,
   sundaySchoolLesson,
+  ministryProgram,
 ];

@@ -21,6 +21,7 @@ export type AdminNavItem = {
 };
 
 export const adminSidebarNav: AdminNavItem[] = [
+  { href: "/admin/school-of-ministry", label: "School of Ministry", icon: FolderOpen, minRole: "executive" },
   {
     href: "/admin/youth-forms",
     label: "Youth Form Archives",

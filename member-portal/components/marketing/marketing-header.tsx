@@ -30,6 +30,7 @@ const navItems: { href: string; label: string; external?: boolean }[] = [
   { href: "/visitors", label: "New here" },
   { href: YOUTUBE_STREAMS, label: "Sermons", external: true },
   { href: "/events", label: "Events" },
+  { href: "/school-of-ministry", label: "School of Ministry" },
   { href: "/giving", label: "Giving" },
   { href: "/contact", label: "Contact" },
 ];

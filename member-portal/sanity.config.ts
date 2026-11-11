@@ -7,6 +7,7 @@ import { structureTool } from "sanity/structure";
 import { schemaTypes } from "@studio/schemaTypes";
 import { structure } from "@studio/structure";
 import { generateRegistrationUrlAction } from "@studio/actions/generateRegistrationUrl";
+import { ministryTool } from "@studio/components/MinistryTool";
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "";
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
@@ -17,7 +18,7 @@ export default defineConfig({
   title: "Living Word Memphis",
   projectId,
   dataset,
-  plugins: [structureTool({ structure }), visionTool()],
+  plugins: [structureTool({ structure }), visionTool(), ministryTool()],
   schema: {
     types: schemaTypes,
   },
