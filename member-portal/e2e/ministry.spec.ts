@@ -196,6 +196,9 @@ test("public overview, enrollment approval, student dashboard, private drafts, r
   browser,
 }) => {
   await page.goto("/school-of-ministry");
+  await expect(page.getByText(/Annual tuition: \$1,000\.00/)).toBeVisible();
+  await expect(page.getByText(/Spring: \$500\.00/)).toBeVisible();
+  await expect(page.getByText(/Fall: \$500\.00/)).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "School of Ministry", exact: true }),
   ).toBeVisible();

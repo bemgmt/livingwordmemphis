@@ -100,8 +100,11 @@ export default async function Page() {
             </p>
           ))}
           <p className="mt-4 text-sm text-muted-foreground">
-            Annual tuition: $675. Payments are arranged with the church and
-            recorded by staff.
+            Annual tuition:{" "}
+            {money(
+              TUITION.reduce((total, semester) => total + semester.cents, 0),
+            )}
+            . Payments are arranged with the church and recorded by staff.
           </p>
         </div>
       </section>
