@@ -10,11 +10,12 @@ import {
   chicagoInputToIso,
   chicagoInputValue,
 } from "../lib/ministry/program";
+import { approvalTuition } from "../lib/ministry/tuition";
 const admin = "11111111-1111-4111-8111-111111111111",
   student = "22222222-2222-4222-8222-222222222222",
   other = "33333333-3333-4333-8333-333333333333",
   teacher = "44444444-4444-4444-8444-444444444444";
-export async function fixture() {
+export async function fixture(applyLatest = true) {
   const db = new PGlite();
   await db.exec(`create role authenticated;create role anon;create role service_role;
  create schema auth;create schema storage;create table auth.users(id uuid primary key);
@@ -34,6 +35,13 @@ export async function fixture() {
       "utf8",
     ),
   );
+  if (applyLatest)
+    await db.exec(
+      await readFile(
+        "../supabase/migrations/20261111230218_ministry_tuition_and_approval.sql",
+        "utf8",
+      ),
+    );
   return db;
 }
 async function as(db: PGlite, id: string) {
@@ -49,6 +57,184 @@ async function command(db: PGlite, action: string, payload: unknown = {}) {
     )
   ).rows[0].result;
 }
+async function enrollPaid(db: PGlite, userId: string) {
+  await as(db, userId);
+  const enrollment = await command(db, "request_enrollment", {
+    offering_id: "2027-prophets",
+    accepted: true,
+  });
+  await as(db, admin);
+  await command(db, "tuition", {
+    enrollment_id: enrollment.id,
+    semester: "spring",
+    kind: "payment",
+    cents: -50000,
+    description: "Isolated test tuition",
+  });
+  await command(db, "enrollment", { id: enrollment.id, status: "approved" });
+  return enrollment;
+}
+test("tuition is recorded before manual approval; partial payments, bypass attempts and unauthorized changes are blocked", async () => {
+  const db = await fixture();
+  try {
+    await as(db, student);
+    const e = await command(db, "request_enrollment", {
+      offering_id: "2027-prophets",
+      accepted: true,
+    });
+    assert.deepEqual(
+      (
+        await db.query<{ cents: number }>("select cents from som_ledger")
+      ).rows.map((l) => l.cents),
+      [50000, 50000],
+    );
+    await assert.rejects(
+      command(db, "tuition", {
+        enrollment_id: e.id,
+        semester: "spring",
+        kind: "payment",
+        cents: -50000,
+      }),
+      /administrator/,
+    );
+    await assert.rejects(
+      db.query("select ministry_enrollment_summary()"),
+      /administrator/,
+    );
+    await as(db, admin);
+    await assert.rejects(
+      command(db, "grant_enrollment", {
+        offering_id: "2027-apostles",
+        user_id: other,
+      }),
+      /tuition/,
+    );
+    await assert.rejects(
+      command(db, "enrollment", { id: e.id, status: "completed" }),
+      /Approve enrollment/,
+    );
+    await assert.rejects(
+      command(db, "enrollment", { id: e.id, status: "approved" }),
+      /tuition/,
+    );
+    await command(db, "tuition", {
+      enrollment_id: e.id,
+      semester: "spring",
+      kind: "payment",
+      cents: -20000,
+    });
+    await assert.rejects(
+      command(db, "enrollment", { id: e.id, status: "approved" }),
+      /tuition/,
+    );
+    await command(db, "tuition", {
+      enrollment_id: e.id,
+      semester: "spring",
+      kind: "waiver",
+      cents: -30000,
+    });
+    const summary = (
+      await db.query<{
+        result: { id: string; pending: number; ready: number }[];
+      }>("select ministry_enrollment_summary() result")
+    ).rows[0].result;
+    assert.deepEqual(summary.find((o) => o.id === "2027-prophets")?.ready, 1);
+    const rows = (await db.query("select * from som_enrollments")).rows;
+    const ledger = (await db.query("select * from som_ledger")).rows;
+    // Same readiness rules used in the administrator UI.
+    assert.equal(
+      approvalTuition(rows[0] as never, rows as never, ledger as never).ready,
+      true,
+    );
+    await command(db, "enrollment", { id: e.id, status: "approved" });
+    const extra = await command(db, "grant_enrollment", {
+      offering_id: "2027-teacher",
+      user_id: student,
+    });
+    assert.equal(
+      (
+        await db.query("select * from som_ledger where enrollment_id=$1", [
+          extra.id,
+        ])
+      ).rows.length,
+      0,
+    );
+    await command(db, "tuition", {
+      enrollment_id: e.id,
+      semester: "spring",
+      kind: "correction",
+      cents: 10000,
+    });
+    assert.equal(
+      (
+        await db.query<{ status: string }>(
+          "select status from som_enrollments where id=$1",
+          [e.id],
+        )
+      ).rows[0].status,
+      "approved",
+    );
+    await command(db, "enrollment", { id: e.id, status: "suspended" });
+    await command(db, "enrollment", { id: e.id, status: "approved" });
+    assert.equal(
+      (
+        await db.query("select * from som_ledger where enrollment_id=$1", [
+          e.id,
+        ])
+      ).rows.length,
+      5,
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+test("tuition migration keeps original ledger history and existing approved access", async () => {
+  const db = await fixture(false);
+  try {
+    await as(db, admin);
+    const e = await command(db, "grant_enrollment", {
+      offering_id: "2027-prophets",
+      user_id: student,
+    });
+    await command(db, "tuition", {
+      enrollment_id: e.id,
+      semester: "spring",
+      kind: "payment",
+      cents: -10000,
+    });
+    await db.exec("reset role");
+    await db.exec(
+      await readFile(
+        "../supabase/migrations/20261111230218_ministry_tuition_and_approval.sql",
+        "utf8",
+      ),
+    );
+    assert.equal(
+      (
+        await db.query<{ balance: number }>(
+          "select sum(cents)::integer balance from som_ledger",
+        )
+      ).rows[0].balance,
+      90000,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "select * from som_ledger where kind='charge' and cents in (35000,32500)",
+        )
+      ).rows.length,
+      2,
+    );
+    assert.equal(
+      (await db.query<{ status: string }>("select status from som_enrollments"))
+        .rows[0].status,
+      "approved",
+    );
+  } finally {
+    await db.close();
+  }
+});
 test("official calendar, Chicago boundaries, chapter coverage, and tuition", () => {
   assert.equal(
     MEETINGS.filter((m) => m.kind === "instruction" && m.semester === "spring")
@@ -70,7 +256,7 @@ test("official calendar, Chicago boundaries, chapter coverage, and tuition", () 
     assert.equal(new Date(m.date + "T12:00:00Z").getUTCDay(), 2);
   assert.equal(
     TUITION.reduce((n, t) => n + t.cents, 0),
-    67500,
+    100000,
   );
   assert.equal(
     nextMeeting(new Date("2027-05-05T12:00:00Z"))?.date,
@@ -100,10 +286,7 @@ test("exams keep keys private, score saved answers at closure, preserve retakes 
   const db = await fixture();
   try {
     await as(db, admin);
-    await command(db, "grant_enrollment", {
-      offering_id: "2027-prophets",
-      user_id: student,
-    });
+    await enrollPaid(db, student);
     await command(db, "instructor", {
       offering_id: "2027-prophets",
       user_id: teacher,
@@ -214,7 +397,7 @@ test("exams keep keys private, score saved answers at closure, preserve retakes 
           "select sum(cents)::integer balance from som_ledger",
         )
       ).rows[0].balance,
-      67500,
+      50000,
     );
   } finally {
     await db.close();
@@ -240,6 +423,13 @@ test("enrollment gating, cross-school isolation, draft privacy, tuition and comp
       /administrator/,
     );
     await as(db, admin);
+    await command(db, "tuition", {
+      enrollment_id: enrolled.id,
+      semester: "spring",
+      kind: "payment",
+      cents: -50000,
+      description: "Isolated test tuition",
+    });
     await command(db, "enrollment", { id: enrolled.id, status: "approved" });
     await command(db, "instructor", {
       offering_id: "2027-prophets",
@@ -265,7 +455,7 @@ test("enrollment gating, cross-school isolation, draft privacy, tuition and comp
     );
     assert.equal(contents.rows.length, 1);
     assert.equal(contents.rows[0].data.body, "unreleased");
-    assert.equal((await db.query("select * from som_ledger")).rows.length, 2);
+    assert.equal((await db.query("select * from som_ledger")).rows.length, 3);
     await assert.rejects(
       db.exec("update som_enrollments set status='approved'"),
       /permission denied/,
@@ -306,10 +496,7 @@ test("assignment retries, unreleased grades, instructor boundaries and immutable
   const db = await fixture();
   try {
     await as(db, admin);
-    const e = await command(db, "grant_enrollment", {
-      offering_id: "2027-prophets",
-      user_id: student,
-    });
+    const e = await enrollPaid(db, student);
     await command(db, "instructor", {
       offering_id: "2027-prophets",
       user_id: teacher,
@@ -402,7 +589,7 @@ test("assignment retries, unreleased grades, instructor boundaries and immutable
           "select sum(cents)::integer balance from som_ledger",
         )
       ).rows[0].balance,
-      67500,
+      50000,
     );
     assert.equal(
       (await db.query<{ status: string }>("select status from som_enrollments"))

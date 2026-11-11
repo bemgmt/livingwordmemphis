@@ -16,8 +16,8 @@ export const AGENDA = [
   ["8:50–9:00 PM", "Independent study assignments and dismissal"],
 ] as const;
 export const TUITION = [
-  { semester: "spring", cents: 35000, due: "2027-01-09" },
-  { semester: "fall", cents: 32500, due: "2027-08-14" },
+  { semester: "spring", cents: 50000, due: "2027-01-09" },
+  { semester: "fall", cents: 50000, due: "2027-08-14" },
 ] as const;
 export type Meeting = {
   id: string;

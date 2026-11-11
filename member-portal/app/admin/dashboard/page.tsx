@@ -18,14 +18,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { StatCard } from "@/components/admin/stat-card";
-import { MemberGrowthChart, GivingChart } from "@/components/admin/analytics-chart";
+import {
+  MemberGrowthChart,
+  GivingChart,
+} from "@/components/admin/analytics-chart";
 import { ActivityFeed } from "@/components/admin/activity-feed";
+import { MinistrySummary } from "@/components/admin/ministry-summary";
 import { RoleGate } from "@/components/admin/executive-only";
 import { getUserAdminRole, meetsMinRole } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
 function monthLabel(date: Date) {
-  return date.toLocaleDateString(undefined, { month: "short", year: "2-digit" });
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    year: "2-digit",
+  });
 }
 
 function buildMonthlyBuckets(
@@ -114,12 +121,8 @@ export default async function AdminDashboard() {
     supabase
       .from("prayer_requests")
       .select("*", { count: "exact", head: true }),
-    supabase
-      .from("bulletin_posts")
-      .select("*", { count: "exact", head: true }),
-    supabase
-      .from("forum_topics")
-      .select("*", { count: "exact", head: true }),
+    supabase.from("bulletin_posts").select("*", { count: "exact", head: true }),
+    supabase.from("forum_topics").select("*", { count: "exact", head: true }),
     supabase
       .from("group_join_requests")
       .select("*", { count: "exact", head: true })
@@ -128,9 +131,7 @@ export default async function AdminDashboard() {
       .from("content_reports")
       .select("*", { count: "exact", head: true })
       .eq("status", "pending"),
-    supabase
-      .from("event_rsvps")
-      .select("*", { count: "exact", head: true }),
+    supabase.from("event_rsvps").select("*", { count: "exact", head: true }),
     supabase
       .from("prayer_requests")
       .select("id, created_at, title")
@@ -190,10 +191,12 @@ export default async function AdminDashboard() {
       title: f.title,
       created_at: f.created_at,
     })),
-  ].sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  ).slice(0, 10);
+  ]
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )
+    .slice(0, 10);
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8">
@@ -263,6 +266,8 @@ export default async function AdminDashboard() {
         </RoleGate>
       </div>
 
+      {isExecutive && <MinistrySummary />}
+
       {/* Charts -- Executive+ only */}
       <RoleGate minRole="executive">
         <div className="grid gap-6 lg:grid-cols-2">
@@ -278,8 +283,8 @@ export default async function AdminDashboard() {
             Content (Sanity CMS)
           </CardTitle>
           <CardDescription>
-            Manage sermons, events, announcements, forum topics, approved Bibles,
-            and study assistant knowledge base.
+            Manage sermons, events, announcements, forum topics, approved
+            Bibles, and study assistant knowledge base.
           </CardDescription>
         </CardHeader>
         <CardContent>

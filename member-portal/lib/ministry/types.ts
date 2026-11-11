@@ -42,6 +42,7 @@ export type Enrollment = {
   cohort_id: number;
   user_id: string;
   is_primary: boolean;
+  first_approved_at?: string | null;
   status:
     | "pending"
     | "approved"

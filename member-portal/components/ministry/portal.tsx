@@ -27,6 +27,7 @@ import type {
 } from "../../lib/ministry/types";
 import Link from "next/link";
 import { createClient } from "../../lib/supabase/client";
+import { approvalTuition } from "../../lib/ministry/tuition";
 
 const base = "/member/school-of-ministry";
 const control =
@@ -299,15 +300,17 @@ const text = (d: FormData, k: string) => String(d.get(k) ?? "").trim();
 export function MinistryPortal({
   initialView = "overview",
   initialId,
+  initialOffering = "",
   studio = false,
 }: {
   initialView?: string;
   initialId?: string;
+  initialOffering?: string;
   studio?: boolean;
 }) {
   const [s, setS] = useState<Snapshot>(),
     [error, setError] = useState(""),
-    [offering, setOffering] = useState(""),
+    [offering, setOffering] = useState(initialOffering),
     [semester, setSemester] = useState("spring"),
     [filter, setFilter] = useState("upcoming");
   const refresh = useCallback(async () => {
@@ -607,7 +610,7 @@ export function MinistryPortal({
                 </a>
               </Panel>
               <Panel title="Tuition">
-                <p>Spring: $350 · Fall: $325</p>
+                <p>Spring: $500 · Fall: $500</p>
                 <a
                   className="mt-3 inline-flex min-h-11 items-center text-primary underline"
                   href={`${base}/tuition`}
@@ -910,6 +913,7 @@ export function MinistryPortal({
       {initialView === "admin" &&
         (s.admin ? (
           <Administration
+            key={selected}
             snapshot={s}
             offering={selected}
             mutate={mutate}
@@ -1045,8 +1049,9 @@ function EnrollmentForm({
           teaching week.
         </p>
         <p>
-          Spring tuition: $350. Fall tuition: $325. Enrollment is approved by
-          church staff.
+          Spring tuition: $500. Fall tuition: $500. Enrollment is approved by
+          church staff after spring tuition is paid or covered by an authorized
+          waiver.
         </p>
         <label className="flex items-start gap-3 text-sm">
           <input
@@ -2333,8 +2338,48 @@ function Administration({
   const [selected, setSelected] = useState("");
   const enrollments = s.enrollments.filter((e) => e.offering_id === offering),
     e = enrollments.find((e) => e.id === selected);
+  const pending = enrollments.filter((item) => item.status === "pending");
+  const tuition = e ? approvalTuition(e, s.enrollments, s.ledger) : null;
   return (
     <div className="space-y-6">
+      <Panel title="Student approvals">
+        <p className="mb-4 text-sm">
+          $500 per semester · $1,000 annually. Record spring tuition payment or
+          an authorized waiver, then approve the student. Payment alone does not
+          grant course access.
+        </p>
+        {pending.length === 0 ? (
+          <p>No pending students in this school.</p>
+        ) : (
+          <ul className="space-y-3">
+            {pending.map((student) => {
+              const account = approvalTuition(student, s.enrollments, s.ledger);
+              return (
+                <li
+                  key={student.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"
+                >
+                  <div>
+                    <p className="font-medium">{name(student.user_id)}</p>
+                    <p className="text-sm">
+                      {account.ready
+                        ? "Tuition covered · Ready for approval"
+                        : `Awaiting tuition · ${money(account.balance)} spring balance`}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className={button}
+                    onClick={() => setSelected(student.id)}
+                  >
+                    Review payment &amp; enrollment
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Panel>
       <Panel title="2027 school administration">
         <p>
           America/Chicago · 27 teaching meetings · 2 finals · Staff-confirmed
@@ -2357,8 +2402,34 @@ function Administration({
         </label>
         {e && (
           <div className="mt-5">
+            {tuition?.primary && (
+              <TuitionRecords
+                snapshot={s}
+                enrollmentId={tuition.primary.id}
+                mutate={mutate}
+              />
+            )}
+            {e.status === "pending" &&
+              (tuition?.ready ? (
+                <Form
+                  label="Approve student"
+                  onSave={() =>
+                    mutate("enrollment", { id: e.id, status: "approved" })
+                  }
+                >
+                  <p>
+                    Spring tuition is covered. This student is ready for your
+                    approval.
+                  </p>
+                </Form>
+              ) : (
+                <p className="my-4 rounded-lg border p-4" role="status">
+                  Approval is unavailable until the full spring tuition is
+                  covered. Record a payment or authorized waiver above.
+                </p>
+              ))}
             <Form
-              key={e.id}
+              key={`${e.id}:${e.status}`}
               label="Update enrollment"
               onSave={(d) =>
                 mutate("enrollment", { id: e.id, status: text(d, "status") })
@@ -2373,7 +2444,16 @@ function Administration({
                   "withdrawn",
                   "completed",
                 ].map((v) => (
-                  <option key={v} value={v}>
+                  <option
+                    key={v}
+                    value={v}
+                    disabled={
+                      (v === "approved" &&
+                        !e.first_approved_at &&
+                        !tuition?.ready) ||
+                      (v === "completed" && !e.first_approved_at)
+                    }
+                  >
                     {v}
                   </option>
                 ))}
@@ -2427,7 +2507,9 @@ function Administration({
             ))}
           </Choose>
           <p className="text-sm">
-            Grants the selected school as an additional approved enrollment.
+            Grants an additional school to an approved student whose primary
+            spring tuition is covered. New students must apply and have tuition
+            recorded before approval.
           </p>
         </Form>
       </Panel>
@@ -2462,58 +2544,6 @@ function Administration({
             ))}
         </ul>
       </Panel>
-      {e && (
-        <Panel title="Record tuition payment, waiver, or correction">
-          <div className="mb-5 space-y-2">
-            {s.ledger
-              .filter((l) => l.enrollment_id === e.id)
-              .map((l) => (
-                <p key={l.id}>
-                  {l.semester} · {l.description} · {money(l.cents)}
-                </p>
-              ))}
-          </div>
-          <Form
-            label="Append tuition record"
-            onSave={(d) => {
-              const kind = text(d, "kind"),
-                amount = Math.round(Number(text(d, "amount")) * 100);
-              return mutate("tuition", {
-                enrollment_id: e.id,
-                semester: text(d, "semester"),
-                kind,
-                cents: kind === "correction" ? amount : -Math.abs(amount),
-                description: text(d, "description"),
-              });
-            }}
-          >
-            <Choose label="Semester" name="semester">
-              <option value="spring">Spring</option>
-              <option value="fall">Fall</option>
-            </Choose>
-            <Choose label="Record type" name="kind">
-              <option value="payment">Payment</option>
-              <option value="waiver">Waiver</option>
-              <option value="correction">Signed balance correction</option>
-            </Choose>
-            <Field
-              name="amount"
-              label="Amount in dollars (negative corrections reduce the balance)"
-              type="number"
-              required
-            />
-            <Field
-              name="description"
-              label="Description visible to student"
-              required
-            />
-            <p className="text-sm">
-              Records are retained. Correct mistakes with a new entry. This is a
-              staff record, not a payment-processor receipt.
-            </p>
-          </Form>
-        </Panel>
-      )}
       <Panel title="Curriculum & calendar">
         <p>
           Official academic dates are shared by all five schools. Public
@@ -2528,5 +2558,94 @@ function Administration({
         </Link>
       </Panel>
     </div>
+  );
+}
+
+function TuitionRecords({
+  snapshot: s,
+  enrollmentId,
+  mutate,
+}: {
+  snapshot: Snapshot;
+  enrollmentId: string;
+  mutate: Mutate;
+}) {
+  const entries = s.ledger.filter((l) => l.enrollment_id === enrollmentId);
+  return (
+    <section
+      className="mb-6 rounded-lg border p-4"
+      aria-label="Student tuition account"
+    >
+      <h3 className="text-lg font-semibold">
+        Record tuition payment, waiver, or correction
+      </h3>
+      <div className="my-4 grid gap-3 sm:grid-cols-2">
+        {TUITION.map((t) => (
+          <p key={t.semester} className="capitalize">
+            {t.semester} balance:{" "}
+            <strong>
+              {money(
+                entries
+                  .filter((l) => l.semester === t.semester)
+                  .reduce((n, l) => n + l.cents, 0),
+              )}
+            </strong>
+          </p>
+        ))}
+      </div>
+      <details className="mb-4">
+        <summary className="cursor-pointer py-2">Payment history</summary>
+        {entries.map((l) => (
+          <p key={l.id} className="my-2 text-sm">
+            {l.semester} · {l.description} · {money(l.cents)}
+          </p>
+        ))}
+      </details>
+      <Form
+        label="Append tuition record"
+        onSave={(d) => {
+          const kind = text(d, "kind"),
+            amount = Math.round(Number(text(d, "amount")) * 100);
+          if (!Number.isFinite(amount) || amount === 0)
+            throw new Error("Enter a non-zero amount.");
+          return mutate("tuition", {
+            enrollment_id: enrollmentId,
+            semester: text(d, "semester"),
+            kind,
+            cents: kind === "correction" ? amount : -Math.abs(amount),
+            description: text(d, "description"),
+          });
+        }}
+      >
+        <Choose label="Semester" name="semester">
+          <option value="spring">Spring</option>
+          <option value="fall">Fall</option>
+        </Choose>
+        <Choose label="Record type" name="kind">
+          <option value="payment">Payment</option>
+          <option value="waiver">Waiver</option>
+          <option value="correction">Signed balance correction</option>
+        </Choose>
+        <label className="block font-medium">
+          Amount in dollars (negative corrections reduce the balance)
+          <input
+            className={control}
+            name="amount"
+            type="number"
+            step="0.01"
+            required
+          />
+        </label>
+        <Field
+          name="description"
+          label="Description visible to student"
+          required
+        />
+        <p className="text-sm">
+          Records are retained. Correct mistakes with a new entry. This staff
+          record is not a payment-processor receipt.
+        </p>
+      </Form>
+    </section>
   );
 }

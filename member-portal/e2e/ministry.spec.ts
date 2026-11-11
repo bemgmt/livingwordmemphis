@@ -187,8 +187,8 @@ test.afterAll(async () => {
     await service.from("som_content").delete().eq("id", id);
   }
   for (const f of fixtures) {
-    const deleted=await service.auth.admin.deleteUser(f.id);
-    expect(deleted.error, 'Synthetic local account cleanup').toBeNull();
+    const deleted = await service.auth.admin.deleteUser(f.id);
+    expect(deleted.error, "Synthetic local account cleanup").toBeNull();
   }
 });
 test("public overview, enrollment approval, student dashboard, private drafts, real upload and download", async ({
@@ -233,7 +233,75 @@ test("public overview, enrollment approval, student dashboard, private drafts, r
     expect(r.status(), await r.text()).toBe(200);
     return r.json();
   };
-  await command("enrollment", { id: enrollment.id, status: "approved" });
+  const blockedApproval = await adminContext.request.post(
+    "http://127.0.0.1:3017/api/ministry",
+    {
+      data: {
+        action: "enrollment",
+        payload: { id: enrollment.id, status: "approved" },
+      },
+    },
+  );
+  expect(blockedApproval.status()).toBe(400);
+  const leadership = await adminContext.newPage();
+  await leadership.goto("/admin/dashboard");
+  await expect(
+    leadership.getByRole("heading", {
+      name: "School of Ministry",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await leadership
+    .getByRole("link")
+    .filter({ hasText: "School of the Prophets" })
+    .click();
+  await expect(leadership).toHaveURL(/school=2027-prophets/);
+  await leadership
+    .getByRole("button", { name: "Review payment & enrollment", exact: true })
+    .click();
+  await expect(
+    leadership.getByRole("button", { name: "Approve student", exact: true }),
+  ).toHaveCount(0);
+  await leadership
+    .getByLabel("Amount in dollars (negative corrections reduce the balance)")
+    .fill("200");
+  await leadership
+    .getByLabel("Description visible to student")
+    .fill("Local partial tuition payment");
+  await leadership
+    .getByRole("button", { name: "Append tuition record", exact: true })
+    .click();
+  await expect(
+    leadership.getByText("Awaiting tuition · $300.00 spring balance"),
+  ).toBeVisible();
+  await leadership
+    .getByLabel("Amount in dollars (negative corrections reduce the balance)")
+    .fill("300");
+  await leadership
+    .getByLabel("Description visible to student")
+    .fill("Local remaining tuition payment");
+  await leadership
+    .getByRole("button", { name: "Append tuition record", exact: true })
+    .click();
+  await expect(
+    leadership.getByText("Tuition covered · Ready for approval"),
+  ).toBeVisible();
+  await leadership.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await leadership.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await leadership.screenshot({
+    path: "test-results/ministry-approval-mobile.png",
+    fullPage: true,
+  });
+  await leadership
+    .getByRole("button", { name: "Approve student", exact: true })
+    .click();
+  await expect(
+    leadership.getByText("No pending students in this school."),
+  ).toBeVisible();
   await command("instructor", {
     offering_id: "2027-prophets",
     user_id: teacher.id,
@@ -259,13 +327,11 @@ test("public overview, enrollment approval, student dashboard, private drafts, r
   await expect(editor.getByLabel("Storage path", { exact: true })).toHaveCount(
     0,
   );
-  await editor
-    .getByLabel("Attach a file")
-    .setInputFiles({
-      name: "ministry-test.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from("%PDF-1.4\nSynthetic ministry attachment\n%%EOF"),
-    });
+  await editor.getByLabel("Attach a file").setInputFiles({
+    name: "ministry-test.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from("%PDF-1.4\nSynthetic ministry attachment\n%%EOF"),
+  });
   await expect(editor.getByText("File attached.", { exact: true })).toBeVisible(
     { timeout: 30000 },
   );
@@ -485,12 +551,12 @@ test("public overview, enrollment approval, student dashboard, private drafts, r
   await command("tuition", {
     enrollment_id: enrollmentId,
     semester: "spring",
-    kind: "payment",
-    cents: -10000,
-    description: "Local test payment",
+    kind: "correction",
+    cents: 10000,
+    description: "Local payment correction",
   });
   await page.goto("/member/school-of-ministry/tuition");
-  await expect(page.getByText("Recorded balance: $250.00")).toBeVisible();
+  await expect(page.getByText("Recorded balance: $100.00")).toBeVisible();
   await command("enrollment", { id: enrollmentId, status: "completed" });
   await page.goto("/member/school-of-ministry/progress");
   await expect(

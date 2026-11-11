@@ -28,8 +28,8 @@ weekly curriculum drafts. Only the Prophets drafts receive the supplied chapter
 alignment. Every student has 45 chapter reading slots, independent of grades.
 
 Orientation is separate from the 29 academic meetings. All wall-clock dates use
-America/Chicago. There are no summer assignments seeded. Spring tuition is $350
-due January 9, and fall tuition is $325 due August 14. Additional school access
+America/Chicago. There are no summer assignments seeded. Spring tuition is $500
+due January 9, and fall tuition is $500 due August 14 ($1,000 annually). Additional school access
 does not duplicate the primary program charge.
 
 The Sanity `ministryProgram` document controls public introduction, school
@@ -102,6 +102,26 @@ an interrupted client does not leave them writable. Verify minute-frequency cron
 support for the target Vercel plan before release; do not silently remove the job.
 
 ## Isolated verification
+
+### Payment-confirmed approvals
+
+Tuition is $500 per semester ($1,000 annually). Pending primary applications
+receive both semester charges immediately. Executive/apostle administrators use
+the School of Ministry group on the leadership dashboard to review each school's
+pending requests, record payments or authorized waivers, and approve students.
+The database rejects initial approval until spring tuition is covered, including
+direct API calls and attempts to grant a first school without applying.
+Payment does not approve students automatically. Later balances and corrections
+do not revoke approved access. Additional schools share the primary tuition
+account and require that primary enrollment to be approved.
+
+The follow-up migration preserves existing charges and payments, appends tuition
+adjustments to the ledger, and preserves existing approved enrollments.
+For an existing isolated local fixture stack, apply it once with:
+
+```powershell
+node scripts/ministry-local-test-setup.cjs --upgrade
+```
 
 Never point mutation tests at production. The browser suite fails immediately unless
 the Supabase URL is `http://localhost:<port>` or `http://127.0.0.1:<port>`.
