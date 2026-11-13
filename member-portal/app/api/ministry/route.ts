@@ -93,7 +93,7 @@ export async function POST(request: Request) {
       Array.isArray(payload)
     )
       return fail("Invalid request.", 400);
-    if (action === "prepare_upload") {
+    if (action === "prepare_upload" || action === "library_prepare") {
       const v = validateCurriculumFile({
         filename: payload.filename,
         contentType: payload.mime,
@@ -120,12 +120,57 @@ export async function POST(request: Request) {
           409,
         );
     }
-    const { data, error } = await session.supabase.rpc("ministry_command", {
-      action,
-      payload,
-    });
+    if (action === "library_finish") {
+      const uploaded = await session.supabase.rpc("ministry_library_upload", {
+        upload: payload.id,
+      });
+      if (uploaded.error || !uploaded.data)
+        return fail("Library upload unavailable.", 404);
+      const info = await session.supabase.storage
+        .from(uploaded.data.bucket)
+        .info(uploaded.data.path);
+      if (
+        info.error ||
+        info.data.size !== uploaded.data.size ||
+        info.data.contentType !== uploaded.data.mime
+      )
+        return fail("The uploaded file could not be verified.", 409);
+      const file = await session.supabase.storage
+        .from(uploaded.data.bucket)
+        .download(uploaded.data.path);
+      if (file.error)
+        return fail("Unable to verify the uploaded document.", 503);
+      payload.source_hash = Array.from(
+        new Uint8Array(
+          await crypto.subtle.digest("SHA-256", await file.data.arrayBuffer()),
+        ),
+      )
+        .map((v) => v.toString(16).padStart(2, "0"))
+        .join("");
+    }
+    const courseActions = new Set([
+      "workbook_save",
+      "workbook_submit",
+      "workbook_grade",
+      "workbook_revision",
+      "record_save",
+      "unit_save_draft",
+      "unit_publish",
+      "library_prepare",
+      "library_finish",
+      "library_publish",
+    ]);
+    const { data, error } = await session.supabase.rpc(
+      courseActions.has(action)
+        ? "ministry_course_command"
+        : "ministry_command",
+      {
+        action,
+        payload,
+      },
+    );
     if (error) return fail(error.message, 400);
-    if (action === "prepare_upload") {
+    if (action === "prepare_upload" || action === "library_prepare") {
       const upload = await session.supabase.storage
         .from(data.bucket)
         .createSignedUploadUrl(data.path);

@@ -28,6 +28,14 @@ import type {
 import Link from "next/link";
 import { createClient } from "../../lib/supabase/client";
 import { approvalTuition } from "../../lib/ministry/tuition";
+import {
+  AcademicRecords,
+  CourseApplication,
+  CourseEditor,
+  CourseLibrary,
+  CourseUnit,
+} from "./course";
+import { WorkbookAssignment, WorkbookResponses } from "./workbook";
 
 const base = "/member/school-of-ministry";
 const control =
@@ -367,6 +375,7 @@ export function MinistryPortal({
   const selected =
     offering ||
     s.content.find((c) => c.id === initialId)?.offering_id ||
+    s.offerings.find((o) => initialId?.startsWith(o.id + "-"))?.id ||
     own.find((e) => e.status === "approved")?.offering_id ||
     accessible[0]?.id ||
     s.offerings[0]?.id;
@@ -419,6 +428,7 @@ export function MinistryPortal({
   const nav = [
     ["overview", "Overview"],
     ["school", "My School"],
+    ...(own.length ? [["application", "Application"]] : []),
     ["calendar", "Calendar"],
     ["assignments", "Assignments & Exams"],
     ["progress", "My Progress"],
@@ -427,7 +437,10 @@ export function MinistryPortal({
     ...(s.admin ? [["admin", "Administration"]] : []),
   ];
   const next = nextMeeting();
-  const isDetail = initialView === "lesson" || initialView === "assessment";
+  const isDetail =
+    initialView === "lesson" ||
+    initialView === "assessment" ||
+    initialView === "unit";
   return (
     <div
       className={`mx-auto max-w-6xl space-y-6 ${studio ? "h-full overflow-y-auto bg-background p-5 text-foreground" : ""}`}
@@ -726,6 +739,39 @@ export function MinistryPortal({
           </Panel>
         </>
       )}
+      {initialView === "library" && canRead && (
+        <CourseLibrary offering={selected} />
+      )}
+      {initialView === "unit" && canRead && initialId && (
+        <CourseUnit
+          id={initialId}
+          snapshot={s}
+          refresh={refresh}
+          readOnly={enrollment?.status !== "approved"}
+        />
+      )}
+      {initialView === "application" &&
+        own.some((e) => e.offering_id === selected) && (
+          <CourseApplication key={selected} offering={selected} snapshot={s} />
+        )}
+      {initialView === "school" && canRead && (
+        <section className="rounded-xl border bg-card p-5">
+          <h2 className="font-serif text-2xl">
+            Read and complete your workbook online
+          </h2>
+          <p className="mt-3">
+            Open chapter reading, answer the supplied workbook questions, and
+            submit your work here. Missing manuals, exams, and practicum
+            instructions remain clearly marked.
+          </p>
+          <Link
+            className="mt-3 inline-flex min-h-11 items-center text-primary underline"
+            href={`${base}/library`}
+          >
+            Open school library and workbooks
+          </Link>
+        </section>
+      )}
       {initialView === "lesson" &&
         canRead &&
         (() => {
@@ -809,8 +855,10 @@ export function MinistryPortal({
                   {c.title}
                 </a>
                 <p className="mt-2 text-sm">
-                  {c.data.max_points} points · {c.kind}{" "}
-                  {c.data.mode && `· ${c.data.mode}`}
+                  {c.data.grading_mode === "completion"
+                    ? "Completion review"
+                    : `${c.data.max_points} points`}{" "}
+                  · {c.kind} {c.data.mode && `· ${c.data.mode}`}
                 </p>
                 {c.data.due_at && (
                   <p className="text-sm">Due {timeLabel(c.data.due_at)}</p>
@@ -830,7 +878,15 @@ export function MinistryPortal({
             (c) =>
               c.id === initialId && ["assignment", "exam"].includes(c.kind),
           );
-          return a ? (
+          return a?.data.unit_id ? (
+            <WorkbookAssignment
+              key={`${a.id}:${s.work.filter((w) => w.assessment_id === a.id && w.user_id === s.userId).sort((x, y) => y.attempt - x.attempt)[0]?.attempt || 1}`}
+              assessment={a}
+              snapshot={s}
+              refresh={refresh}
+              readOnly={enrollment?.status !== "approved"}
+            />
+          ) : a ? (
             <WorkPanel
               key={a.id}
               assessment={a}
@@ -918,6 +974,7 @@ export function MinistryPortal({
             offering={selected}
             mutate={mutate}
             name={name}
+            refresh={refresh}
           />
         ) : (
           <Panel title="School administrator access required">
@@ -929,13 +986,16 @@ export function MinistryPortal({
         ))}
       {initialView === "editor" &&
         (s.editor ? (
-          <CurriculumEditor
-            key={selected}
-            snapshot={s}
-            offering={selected}
-            mutate={mutate}
-            refresh={refresh}
-          />
+          <>
+            <CourseEditor offering={selected} />
+            <CurriculumEditor
+              key={selected}
+              snapshot={s}
+              offering={selected}
+              mutate={mutate}
+              refresh={refresh}
+            />
+          </>
         ) : (
           <Panel title="Curriculum editor access required">
             <p>
@@ -952,6 +1012,9 @@ export function MinistryPortal({
           "assignments",
           "progress",
           "tuition",
+          "library",
+          "unit",
+          "application",
           "teach",
           "admin",
           "editor",
@@ -1431,7 +1494,11 @@ function Progress({
             <strong>{r.assessment.title}</strong>
             <p>
               {r.grade
-                ? `${r.grade.score} / ${r.max_points}`
+                ? r.grade.completion_status
+                  ? r.grade.completion_status === "complete"
+                    ? "Complete"
+                    : "Revision requested"
+                  : `${r.grade.score} / ${r.max_points}`
                 : r.work.status === "submitted"
                   ? "Awaiting released result"
                   : "Draft"}{" "}
@@ -2019,6 +2086,12 @@ function Teaching({
       </Panel>
       {student && (
         <>
+          <AcademicRecords
+            offering={offering}
+            userId={student}
+            snapshot={s}
+            refresh={refresh}
+          />
           <Progress
             snapshot={s}
             offering={offering}
@@ -2086,6 +2159,7 @@ function Teaching({
               {w.submitted_at && timeLabel(w.submitted_at)}
             </p>
             <p className="whitespace-pre-wrap">{w.response}</p>
+            {a.data.unit_id && <WorkbookResponses work={w} />}
             {a.data.questions?.map((q) => (
               <article className="rounded-lg border p-4" key={q.id}>
                 <h3 className="font-semibold">{q.prompt}</h3>
@@ -2095,40 +2169,89 @@ function Teaching({
               </article>
             ))}
             <Files snapshot={s} workId={w.id} />
-            <Form
-              key={w.id}
-              label="Save grade"
-              onSave={(d) =>
-                mutate("grade", {
-                  id: w.id,
-                  score: Number(text(d, "score")),
-                  feedback: text(d, "feedback"),
-                  released: d.get("released") === "on",
-                })
-              }
-            >
-              <Field
-                name="score"
-                label={`Points earned (maximum ${a.data.max_points})`}
-                type="number"
-                value={g?.score}
-                required
-              />
-              <Field
-                name="feedback"
-                label="Instructor feedback"
-                type="textarea"
-                value={g?.feedback}
-              />
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  name="released"
-                  defaultChecked={g?.released}
+            {a.data.unit_id ? (
+              <Form
+                key={w.id}
+                label="Return workbook feedback"
+                onSave={(d) =>
+                  mutate("workbook_grade", {
+                    id: w.id,
+                    completion_status: text(d, "completion_status"),
+                    feedback: text(d, "feedback"),
+                    released: d.get("released") === "on",
+                  })
+                }
+              >
+                <Choose
+                  name="completion_status"
+                  label="Workbook outcome"
+                  value={g?.completion_status || "revision_required"}
+                >
+                  <option value="revision_required">Revision required</option>
+                  <option value="complete">Complete</option>
+                </Choose>
+                <Field
+                  name="feedback"
+                  label="Instructor feedback"
+                  type="textarea"
+                  value={g?.feedback}
                 />
-                Release result to student
-              </label>
-            </Form>
+                <label className="flex items-center gap-3">
+                  <input
+                    name="released"
+                    type="checkbox"
+                    defaultChecked={g?.released}
+                  />
+                  Release feedback to student
+                </label>
+              </Form>
+            ) : (
+              <Form
+                key={w.id}
+                label="Save grade"
+                onSave={(d) =>
+                  mutate("grade", {
+                    id: w.id,
+                    score: Number(text(d, "score")),
+                    feedback: text(d, "feedback"),
+                    released: d.get("released") === "on",
+                  })
+                }
+              >
+                <Field
+                  name="score"
+                  label={`Points earned (maximum ${a.data.max_points})`}
+                  type="number"
+                  value={g?.score ?? undefined}
+                  required
+                />
+                <Field
+                  name="feedback"
+                  label="Instructor feedback"
+                  type="textarea"
+                  value={g?.feedback}
+                />
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    name="released"
+                    defaultChecked={g?.released}
+                  />
+                  Release result to student
+                </label>
+              </Form>
+            )}
+            {a.data.unit_id && (
+              <Form
+                label="Authorize workbook revision"
+                onSave={() => mutate("workbook_revision", { id: w.id })}
+              >
+                <p className="text-sm">
+                  The student receives an editable copy. This submitted version
+                  and its feedback remain in the academic record.
+                </p>
+              </Form>
+            )}
             {a.kind === "exam" && (
               <Form
                 label="Authorize a new attempt"
@@ -2156,7 +2279,8 @@ function Teaching({
               .filter(
                 (c) =>
                   c.offering_id === offering &&
-                  ["assignment", "exam", "announcement"].includes(c.kind),
+                  ["assignment", "exam", "announcement"].includes(c.kind) &&
+                  !c.data.unit_id,
               )
               .map((c) => (
                 <option key={c.id} value={c.id}>
@@ -2191,7 +2315,10 @@ function Teaching({
           <Choose label="Assignment" name="assessment_id">
             {s.content
               .filter(
-                (c) => c.offering_id === offering && c.kind === "assignment",
+                (c) =>
+                  c.offering_id === offering &&
+                  c.kind === "assignment" &&
+                  !c.data.unit_id,
               )
               .map((c) => (
                 <option key={c.id} value={c.id}>
@@ -2329,11 +2456,13 @@ function Administration({
   offering,
   mutate,
   name,
+  refresh,
 }: {
   snapshot: Snapshot;
   offering: string;
   mutate: Mutate;
   name: (id: string) => string;
+  refresh: () => Promise<void>;
 }) {
   const [selected, setSelected] = useState("");
   const enrollments = s.enrollments.filter((e) => e.offering_id === offering),
@@ -2484,6 +2613,12 @@ function Administration({
                 userId={e.user_id}
                 mutate={mutate}
                 readOnly
+              />
+              <AcademicRecords
+                offering={offering}
+                userId={e.user_id}
+                snapshot={s}
+                refresh={refresh}
               />
             </div>
           </div>

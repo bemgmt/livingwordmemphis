@@ -30,7 +30,7 @@ const token = (role) => {
   return `${h}.${p}.${crypto.createHmac("sha256", secret).update(`${h}.${p}`).digest("base64url")}`;
 };
 const kong = JSON.parse(docker("inspect", `supabase_kong_${stack}`))[0];
-const port = kong.NetworkSettings.Ports["8000/tcp"]?.[0]?.HostPort;
+const port = process.env.MINISTRY_TEST_API_PORT || kong.NetworkSettings.Ports["8000/tcp"]?.[0]?.HostPort;
 if (!port || !/^\d+$/.test(port)) throw new Error("Local API port not found.");
 fs.writeFileSync(
   path.resolve(__dirname, "../.env.ministry-test"),
@@ -132,3 +132,10 @@ if (process.argv.includes("--upgrade")) {
 console.log(
   "Prepared isolated local school test configuration. Credentials were not printed; production files were not modified.",
 );
+if (process.argv.includes("--course")) {
+  const applied=docker("exec",`supabase_db_${stack}`,"psql","-U","postgres","-d","postgres","-Atc","select to_regclass('public.som_units') is not null");
+  if(applied.trim()!=="t"){
+    const sql=fs.readFileSync(path.resolve(__dirname,"../../supabase/migrations/20261113030758_ministry_library_and_workbooks.sql"),"utf8");
+    execFileSync("docker",["exec","-i",`supabase_db_${stack}`,"psql","-U","postgres","-d","postgres","--single-transaction","-v","ON_ERROR_STOP=1"],{input:sql,stdio:["pipe","pipe","pipe"]});
+  }
+}

@@ -4,7 +4,7 @@ if (existsSync(".env.ministry-test")) process.loadEnvFile(".env.ministry-test");
 else if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: "ministry.spec.ts",
+  testMatch: /ministry(?:-workbooks)?\.spec\.ts/,
   fullyParallel: false,
   workers: 1,
   timeout: 240000,

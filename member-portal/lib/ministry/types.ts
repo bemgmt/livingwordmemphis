@@ -14,6 +14,8 @@ export type ContentData = {
   mode?: "online" | "in-person";
   questions?: Question[];
   recommendation?: boolean;
+  unit_id?: string;
+  grading_mode?: "completion" | "points";
 };
 export type Question = {
   id: string;
@@ -63,10 +65,18 @@ export type Work = {
   saved_at: string;
   submitted_at: string | null;
   late: boolean;
+  assessment_snapshot?: {
+    title?: string;
+    unit_id?: string;
+    source_version?: string;
+    fields?: import("./course-types").WorkbookField[];
+    instructions?: string;
+  };
 };
 export type Grade = {
   work_id: string;
-  score: number;
+  score: number | null;
+  completion_status?: "complete" | "revision_required" | null;
   feedback: string;
   released: boolean;
 };

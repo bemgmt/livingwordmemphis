@@ -44,9 +44,11 @@ lesson is a separate snapshot, so subsequent private edits do not leak to studen
 Published attachment references are refreshed on republishing. No storage paths or
 MIME fields are part of the authoring UI.
 
-The supplied source is an academic schedule, not complete teaching materials.
-Editors must supply lesson titles/content, learning objectives, exercises, exams,
-and actual files. Instructors and student enrollments must be assigned by staff.
+The supplied document set now supports a private library and structured browser
+workbooks. The importer covers the five schools only; School of Miracles is a
+separate module and is excluded. See [curriculum import and online workbooks](ministry-curriculum-import.md).
+Missing manuals, actual examinations, and detailed practicum guides remain
+explicit placeholders. Instructors and student enrollments are assigned by staff.
 
 ## Security and data contracts
 
